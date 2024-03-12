@@ -35,7 +35,7 @@ data_case_FlowPress_Radial = Sm.SimuladorFlowPressureRadial(initialpressure=pres
                                                             wellflow=wellflow)
 
 x = np.linspace(start=0, stop=data_case_PressPress.res_length, num=1001)
-t = np.linspace(start=1, stop=100, num=10)
+t = np.linspace(start=0, stop=100, num=11)
 
 data_case_PressPress.start_simulation(x=x, t=t)
 data_case_FlowPress.start_simulation(x=x, t=t)
