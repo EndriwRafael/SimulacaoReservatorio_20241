@@ -29,14 +29,14 @@ class SimuladorPressPressLinear:
             sum_value = 0
             return sum_value
         else:
-            sum_value = round(((np.exp(-1 * (((1 * np.pi) / self.res_length) ** 2) * (self.eta * time)) / 1) *
+            sum_value = round(((np.exp(-(((1 * np.pi) / self.res_length) ** 2) * (self.eta * time)) / 1) *
                                np.sin((1 * np.pi * point) / self.res_length)), ndigits=5)
             n = 2
             erro = 100
-            eppara = 0.001
+            eppara = 0.00000001
             while erro >= eppara:
                 sum_old = sum_value
-                sum_value += round(((np.exp(-1 * (((n * np.pi) / self.res_length) ** 2) * (self.eta * time)) / n) *
+                sum_value += round(((np.exp(-(((n * np.pi) / self.res_length) ** 2) * (self.eta * time)) / n) *
                                     np.sin((n * np.pi * point) / self.res_length)), ndigits=5)
                 erro = np.fabs(sum_value - sum_old) / sum_value
                 n += 1
@@ -53,7 +53,7 @@ class SimuladorPressPressLinear:
         # plt.plot(data.index, data['time 50.0'])
         plt.ticklabel_format(axis='y', style='plain')
         plt.xlabel('Comprimento (m)')
-        plt.ylabel('Pressão (psia)')
+        plt.ylabel('Pressão (Pa)')
         plt.title('Pressão-Pressão [Analítico]')
         plt.legend(framealpha=1)
         plt.grid()
@@ -69,9 +69,15 @@ class SimuladorPressPressLinear:
             vetor_for_time = []
 
             for point in x:
-                suma = self.calc_sum(time, point)
-                vetor_for_time.append((self.deltaPressure * (point / self.res_length + ((2 / np.pi) * suma))) +
-                                      self.well_pressure)
+                if time == 0:
+                    vetor_for_time.append(self.initial_pressure)
+                else:
+                    if point == 0:
+                        vetor_for_time.append(self.well_pressure)
+                    else:
+                        suma = self.calc_sum(time, point)
+                        vetor_for_time.append((self.deltaPressure * ((point / self.res_length) + ((2 / np.pi) * suma))) +
+                                              self.well_pressure)
 
             pressure[f'time {time}'] = vetor_for_time
 
@@ -108,7 +114,7 @@ class SimuladorFlowPressureLinear:
         # plt.plot(data.index, data['time 50.0'])
         plt.ticklabel_format(axis='y', style='plain')
         plt.xlabel('Comprimento (m)')
-        plt.ylabel('Pressão (psia)')
+        plt.ylabel('Pressão (Pa)')
         plt.title('Pressão-Pressão [Analítico]')
         plt.legend(framealpha=1)
         plt.grid()
@@ -124,12 +130,16 @@ class SimuladorFlowPressureLinear:
             vetor_in_time = []
 
             for position in x:
-                a = ((self.flow * self.viscosity) / (self.permeability * self.area))
-                b = np.sqrt((4 * self.eta * time) / np.pi)
-                c = np.exp(position ** 2 / (-4 * self.eta * time))
-                d = position
-                e = erfc(position / np.sqrt(4 * self.eta * time))
-                vetor_in_time.append(self.initial_pressure - (a * ((b * c) - (d * e))))
+
+                if time == 0:
+                    vetor_in_time.append(self.initial_pressure)
+                else:
+                    a = ((self.flow * self.viscosity) / (self.permeability * self.area))
+                    b = np.sqrt((4 * self.eta * time) / np.pi)
+                    c = np.exp(position ** 2 / (-4 * self.eta * time))
+                    d = position
+                    e = erfc(position / np.sqrt(4 * self.eta * time))
+                    vetor_in_time.append(self.initial_pressure - (a * ((b * c) - (d * e))))
 
             pressure[f'time {time}'] = vetor_in_time
 
@@ -166,7 +176,7 @@ class SimuladorFlowPressureRadial:
         # plt.plot(data.index, data['time 50.0'])
         plt.ticklabel_format(axis='y', style='plain')
         plt.xlabel('Comprimento (m)')
-        plt.ylabel('Pressão (psia)')
+        plt.ylabel('Pressão (Pa)')
         plt.title('Pressão-Pressão [Analítico]')
         plt.legend(framealpha=1)
         plt.grid()
@@ -183,10 +193,19 @@ class SimuladorFlowPressureRadial:
             vetor_in_time = []
 
             for position in x:
-                a = (self.flow * self.viscosity) / (4 * np.pi * self.permeability * self.thickness)
-                b = expn(1, (self.porosity * self.viscosity * self.compressibility * position ** 2) /
-                         (4 * self.permeability * time))
-                vetor_in_time.append(self.initial_pressure - (a * b))
+
+                if time == 0:
+                    vetor_in_time.append(self.initial_pressure)
+                else:
+                    if position == 0:
+                        vetor_in_time.append(self.well_pressure)
+                    elif position == self.res_length:
+                        vetor_in_time.append(self.initial_pressure)
+                    else:
+                        a = (self.flow * self.viscosity) / (4 * np.pi * self.permeability * self.thickness)
+                        b = expn(1, (self.porosity * self.viscosity * self.compressibility * position ** 2) /
+                                 (4 * self.permeability * time))
+                        vetor_in_time.append(self.initial_pressure - (a * b))
 
             pressure[f'time {time}'] = vetor_in_time
 
