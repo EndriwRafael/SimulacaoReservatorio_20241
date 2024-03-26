@@ -1,3 +1,6 @@
+"""
+Simuladores para fluxo linear e radial - Métodos analiticos
+"""
 import matplotlib.pyplot as plt
 import numpy as np
 from pandas import DataFrame as Df
@@ -39,7 +42,8 @@ class SimuladorPressPressLinear:
                 n += 1
             return sum_value
 
-    def plot_results(self, data: Df):
+    @staticmethod
+    def plot_results(data: Df):
         if not os.path.isdir(f'results\\Simulador_Pressao-Pressao'):
             os.makedirs(f'results\\Simulador_Pressao-Pressao')
 
