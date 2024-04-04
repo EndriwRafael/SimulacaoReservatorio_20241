@@ -1,29 +1,15 @@
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-import numpy as np
+class Objeto:
+    def __init__(self, valor1, valor2):
+        self.valor1 = valor1
+        self.valor2 = valor2
 
-# Dados de exemplo
-x = np.linspace(0, 10, 100)
+def minha_funcao(objeto):
+    # Acessando os valores do objeto
+    print("Valor 1:", objeto.valor1)
+    print("Valor 2:", objeto.valor2)
 
-# Inicialização do gráfico
-fig, ax = plt.subplots()
+# Criando um objeto
+meu_objeto = Objeto(10, 20)
 
-# Laço iterativo para plotar as curvas
-for i in range(5):
-    y1 = np.sin(x) + i
-    y2 = np.cos(x) + i
-
-    # Plot da curva contínua
-    ax.plot(x, y1, '-', color='C'+str(i), label='_nolegend_')  # Usando label='_nolegend_' para evitar a adição automática à legenda
-    # Plot da curva tracejada
-    ax.plot(x, y2, '--', color='C'+str(i), label='_nolegend_')
-
-# Criação manual das entradas da legenda
-legend_elements = [Line2D([0], [0], linestyle='-', color='black', label='Linear'),
-                   Line2D([0], [0], linestyle='--', color='black', label='Não linear')]
-
-# Adicionando a legenda
-ax.legend(handles=legend_elements)
-
-# Exibindo o gráfico
-plt.show()
+# Chamando a função e passando o objeto como parâmetro
+minha_funcao(meu_objeto)

@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame as Df
 import os
-# from scipy.special import erfc, expn
 import sys
 
 
@@ -246,49 +245,3 @@ class InitializeData:
         delta_pressure = self.initial_pressure - self.well_pressure
         eta = self.permeability / (self.viscosity * self.compressibility * self.porosity)
         return eta, delta_pressure
-
-    def create_mesh(self, n_cells: int = 0, deltax: float or int = 0):
-        """
-        Function to generate the grid for simulating pressure field. You can pass the value of cells that you wish your
-        grid to have or the distance between the points. If you set one of then, you must set the other value equal to
-        zero.
-
-        :param n_cells: Number of cells that you wish to divide your grid. Must be an integer value. Set n_cells = 0 if
-        you pass deltax!
-        :param deltax: The distance between the points in the grid. It can be an integer or a float value. Set deltax =
-        0 if you pass n_cells!
-        :return: The mesh dict of your problem with the internal points and the two contour points!
-        """
-        if type(n_cells) is not int:
-            print(f'Error!!! The parameter "n_cells" must be set if an integer value. Type passed: {type(n_cells)}.')
-            sys.exit()
-
-        if n_cells != 0 and deltax != 0:
-            print(f'Error!!! Both parameters were set non-zero. You must set at least you of then different from zero.'
-                  f'Or you can set just one of then.')
-
-        if n_cells == 0 and deltax == 0:
-            print(f'Error! Both parameters were set if value zero. '
-                  f'You must set at least one of then non-zero. Or you can set just one of then.')
-            sys.exit()
-
-        if deltax == 0:  # the creation of the grid depends on the number of cells
-            self.n_cells = n_cells
-            self.deltax = self.res_length / self.n_cells
-            initial_point = self.deltax / 2
-            final_point = self.res_length - self.deltax / 2
-            x_array = np.linspace(initial_point, final_point, self.n_cells)  # internal points of the grid
-            x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
-            x_array = np.append(x_array, int(self.res_length))  # insert the final contour point
-            x_array = [round(i, ndigits=3) for i in x_array]
-            self.mesh = {i: x_array[i] for i in range(len(x_array))}
-        else:  # the creation of the grid depends on the value of deltax
-            self.deltax = deltax
-            self.n_cells = int(self.res_length / self.deltax)
-            initial_point = self.deltax / 2
-            final_point = self.res_length - self.deltax / 2
-            x_array = np.linspace(initial_point, final_point, self.n_cells)  # internal points of the grid
-            x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
-            x_array = np.append(x_array, int(self.res_length))  # insert the final contour point
-            x_array = [round(i, ndigits=3) for i in x_array]
-            self.mesh = {i: x_array[i] for i in range(len(x_array))}

@@ -26,8 +26,8 @@ case_to_sim = Sim_pp.InitializeData(initialpressure=pressure_initial, wellpressu
 ''' Discretização da malha ----------------------------------------------------------------------------------------- '''
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
 # estejam incoerentes, o código retornar um erro avisando que o critério de convergência não foi respeitado!
-case_to_sim.create_mesh(n_cells=0, deltax=0.5)
 t = np.linspace(start=0, stop=100, num=401)
+Functions.create_mesh(well_class=case_to_sim, n_cells=0, time_values=t, deltax=0.5)
 
 ''' Iniciando simulação para ambos os métodos - Analítico e Numérico ----------------------------------------------- '''
 Sim_pp.AnaliticalAnalysis(grid=case_to_sim.mesh, t=t, eta=case_to_sim.eta, res_length=case_to_sim.res_length,
