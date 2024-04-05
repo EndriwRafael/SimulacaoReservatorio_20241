@@ -30,13 +30,9 @@ t = np.linspace(start=0, stop=100, num=401)
 Functions.create_mesh(well_class=case_to_sim, n_cells=0, time_values=t, deltax=0.5)
 
 ''' Iniciando simulação para ambos os métodos - Analítico e Numérico ----------------------------------------------- '''
-Sim_pp.AnaliticalAnalysis(grid=case_to_sim.mesh, t=t, eta=case_to_sim.eta, res_length=case_to_sim.res_length,
-                          delta_press=case_to_sim.deltaPressure, well_pressure=case_to_sim.well_pressure,
-                          initial_pressure=case_to_sim.initial_pressure)
+Sim_pp.AnaliticalAnalysis(t=t, well_class=case_to_sim)
 
-Sim_pp.NumericalAnalysis(grid=case_to_sim.mesh, t=t, eta=case_to_sim.eta, well_pressure=case_to_sim.well_pressure,
-                         initial_pressure=case_to_sim.initial_pressure, res_length=case_to_sim.res_length,
-                         deltax=case_to_sim.deltax, n_cells=case_to_sim.n_cells)
+Sim_pp.NumericalAnalysis(t=t, well_class=case_to_sim)
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Pressao-Pressao'

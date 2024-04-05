@@ -9,38 +9,14 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame as Df
 import os
-import sys
+# import sys
 
 
 class NumericalAnalysis:
-    def __init__(self, grid: dict, t: np.ndarray, eta: float, well_pressure, initial_pressure, res_length,
-                 deltax: float or int, n_cells: int):
-        self.mesh = grid
+    def __init__(self, t: np.ndarray, well_class: object):
         self.time = t
-        self.eta = eta
-        self.well_pressure = well_pressure
-        self.initial_pressure = initial_pressure
-        self.res_length = res_length
-        self.delta_x = deltax
-        self.n_cells = n_cells
-        self.rx = self.calc_rx()
+        self.well_class = well_class
         self.start_simulate()
-
-    def calc_rx(self):
-        """
-        The function calculate the parameter Rx (delta in time / delta in length ²) and verify the convergence
-        criterium of the numerical solution.
-        :return: The rx value and a message error if the convergence criterium is not
-        """
-        delta_t = self.time[1] - self.time[0]
-        r_x = delta_t / (self.delta_x ** 2)
-
-        if r_x * self.eta >= 0.25:
-            print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
-            print(f'rx = {r_x} // eta = {self.eta}  // (rx * eta) = {r_x * self.eta}')
-            sys.exit()
-
-        return r_x
 
     def create_dataframe(self) -> tuple:
         """
@@ -51,7 +27,7 @@ class NumericalAnalysis:
         time_to_columns = [float(t) for t in self.time]
         # Setting the mesh points as the dataframe index. The points are not the positions in x, they are just the
         # equivalent cell for the positions.
-        index_for_dataframe = np.linspace(0, self.n_cells + 1, self.n_cells + 2)
+        index_for_dataframe = np.linspace(0, self.well_class.n_cells + 1, self.well_class.n_cells + 2)
         index_for_dataframe = [int(i) for i in index_for_dataframe]
         # Creating the dataframe table with columns and index
         pressure = Df(float(0), index=index_for_dataframe, columns=time_to_columns)
@@ -63,7 +39,7 @@ class NumericalAnalysis:
             os.makedirs(f'results\\Simulador_Pressao-Pressao')
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.mesh[key], ndigits=3) for key in self.mesh.keys()]
+        index_for_dataframe = [round(self.well_class.mesh[key], ndigits=3) for key in self.well_class.mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
@@ -93,7 +69,7 @@ class NumericalAnalysis:
             if i_col == 0.0:
 
                 for i_row in row_idx:
-                    pressure_df.loc[i_row, i_col] = self.initial_pressure
+                    pressure_df.loc[i_row, i_col] = self.well_class.initial_pressure
                 last_column = i_col
 
             else:
@@ -101,28 +77,28 @@ class NumericalAnalysis:
                 for j_row in row_idx:
 
                     if j_row == 0:
-                        pressure_df.loc[j_row, i_col] = self.well_pressure
+                        pressure_df.loc[j_row, i_col] = self.well_class.well_pressure
 
-                    elif j_row == self.n_cells + 1:
-                        pressure_df.loc[j_row, i_col] = self.initial_pressure
+                    elif j_row == self.well_class.n_cells + 1:
+                        pressure_df.loc[j_row, i_col] = self.well_class.initial_pressure
 
                     else:
                         if j_row == 1:  # i = 1. Ponto central da primeira célula.
                             p1_t = pressure_df.loc[j_row, last_column]  # pressão no ponto 1, tempo anterior.
                             p2_t = pressure_df.loc[2, last_column]  # pressão no ponto 2, no
                             # tempo anterior
-                            a = (8/3) * self.eta * self.rx * self.well_pressure
-                            b = (1 - (4 * self.eta * self.rx)) * p1_t
-                            c = (4/3) * self.eta * self.rx * p2_t
+                            a = (8/3) * self.well_class.eta * self.well_class.rx * self.well_class.well_pressure
+                            b = (1 - (4 * self.well_class.eta * self.well_class.rx)) * p1_t
+                            c = (4/3) * self.well_class.eta * self.well_class.rx * p2_t
                             pressure_df.loc[j_row, i_col] = a + b + c
 
-                        elif j_row == self.n_cells:  # i = N. Ponto central da última célula.
+                        elif j_row == self.well_class.n_cells:  # i = N. Ponto central da última célula.
                             p_n_t = pressure_df.loc[j_row, last_column]  # pressão no ponto N, no tempo anterior.
                             p_n_1_t = pressure_df.loc[j_row - 1, last_column]  # pressão no ponto N-1, no
                             # tempo anterior
-                            a = (4/3) * self.eta * self.rx * p_n_1_t
-                            b = (1 - (4 * self.eta * self.rx)) * p_n_t
-                            c = (8/3) * self.eta * self.rx * self.initial_pressure
+                            a = (4/3) * self.well_class.eta * self.well_class.rx * p_n_1_t
+                            b = (1 - (4 * self.well_class.eta * self.well_class.rx)) * p_n_t
+                            c = (8/3) * self.well_class.eta * self.well_class.rx * self.well_class.initial_pressure
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                         else:
@@ -131,9 +107,9 @@ class NumericalAnalysis:
                             # tempo anterior.
                             pi_2 = pressure_df.loc[j_row + 1, last_column]  # pressão no ponto i+1, no
                             # tempo anterior.
-                            a = self.eta * self.rx * pi_1
-                            b = (1 - (2 * self.eta * self.rx)) * pi_t
-                            c = self.eta * self.rx * pi_2
+                            a = self.well_class.eta * self.well_class.rx * pi_1
+                            b = (1 - (2 * self.well_class.eta * self.well_class.rx)) * pi_t
+                            c = self.well_class.eta * self.well_class.rx * pi_2
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                 last_column = i_col
@@ -141,15 +117,9 @@ class NumericalAnalysis:
 
 
 class AnaliticalAnalysis:
-    def __init__(self, grid: dict, t: np.ndarray, eta: float, res_length, delta_press: float, well_pressure,
-                 initial_pressure):
-        self.mesh = grid
+    def __init__(self, t: np.ndarray, well_class: object):
         self.time = t
-        self.eta = eta
-        self.res_length = res_length
-        self.delta_pressure = delta_press
-        self.well_pressure = well_pressure
-        self.initial_pressure = initial_pressure
+        self.well_class = well_class
         self.start_simulate()
 
     def calc_sum(self, t_value, point_value):
@@ -162,8 +132,9 @@ class AnaliticalAnalysis:
         """
 
         # Value of the sum for n = 1:
-        sum_value = ((np.exp(-1 * (((1 * np.pi) / self.res_length) ** 2) * (self.eta * t_value)) / 1) *
-                     np.sin((1 * np.pi * point_value) / self.res_length))
+        sum_value = ((np.exp(-1 * (((1 * np.pi) / self.well_class.res_length) ** 2) * (self.well_class.eta *
+                                                                                       t_value)) / 1) *
+                     np.sin((1 * np.pi * point_value) / self.well_class.res_length))
 
         # Now the iterative process begins:
         n = 2
@@ -171,8 +142,9 @@ class AnaliticalAnalysis:
         eppara = 0.000001
         while erro >= eppara:
             sum_old = sum_value
-            sum_value += ((np.exp(-1 * (((n * np.pi) / self.res_length) ** 2) * (self.eta * t_value)) / n) *
-                          np.sin((n * np.pi * point_value) / self.res_length))
+            sum_value += ((np.exp(-1 * (((n * np.pi) / self.well_class.res_length) ** 2) * (self.well_class.eta *
+                                                                                            t_value)) / n) *
+                          np.sin((n * np.pi * point_value) / self.well_class.res_length))
             erro = np.fabs(sum_value - sum_old) / sum_value
             n += 1
 
@@ -206,23 +178,26 @@ class AnaliticalAnalysis:
             vector_for_time = []
 
             if t == 0:
-                for x in self.mesh.keys():
-                    vector_for_time.append(self.initial_pressure * (self.mesh[x] + 1) / (self.mesh[x] + 1))
+                for x in self.well_class.mesh.keys():
+                    vector_for_time.append(self.well_class.initial_pressure * (self.well_class.mesh[x] + 1) /
+                                           (self.well_class.mesh[x] + 1))
             else:
-                for key in self.mesh.keys():
-                    if self.mesh[key] == 0:
-                        vector_for_time.append(self.well_pressure)
-                    elif self.mesh[key] == self.res_length:
-                        vector_for_time.append(self.initial_pressure)
+                for key in self.well_class.mesh.keys():
+                    if self.well_class.mesh[key] == 0:
+                        vector_for_time.append(self.well_class.well_pressure)
+                    elif self.well_class.mesh[key] == self.well_class.res_length:
+                        vector_for_time.append(self.well_class.initial_pressure)
                     else:
-                        suma = self.calc_sum(t, self.mesh[key])
-                        vector_for_time.append((self.delta_pressure * (self.mesh[key] / self.res_length +
-                                                                       ((2 / np.pi) * suma))) + self.well_pressure)
+                        suma = self.calc_sum(t, self.well_class.mesh[key])
+                        vector_for_time.append((self.well_class.deltaPressure * (self.well_class.mesh[key] /
+                                                                                 self.well_class.res_length +
+                                                                                 ((2 / np.pi) * suma))) +
+                                               self.well_class.well_pressure)
 
             pressure[t] = vector_for_time
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.mesh[key], ndigits=3) for key in self.mesh.keys()]
+        index_for_dataframe = [round(self.well_class.mesh[key], ndigits=3) for key in self.well_class.mesh.keys()]
         pressure = {'x': index_for_dataframe, **pressure}
         # Creating dataframe from the variable 'pressure'
         pressure = Df(pressure).set_index('x')
@@ -239,7 +214,6 @@ class InitializeData:
         self.porosity = porosity
         self.compressibility = compresibility
         self.eta, self.deltaPressure = self.calc()
-        self.mesh, self.deltax, self.n_cells = None, None, None
 
     def calc(self) -> tuple[float, float]:
         delta_pressure = self.initial_pressure - self.well_pressure
