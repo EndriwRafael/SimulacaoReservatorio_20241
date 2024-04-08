@@ -1,8 +1,7 @@
 """
-Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condição de Neumann no Poço e de Dirichlet na Extremidade da
-Fronteira
+Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Neumann nas duas Extremidades
 """
-import Sim_LinearFlow_CCFlowPress as Sim_fp
+import Sim_LinearFlow_CCFlowFlow as Sim_ff
 import Functions
 import numpy as np
 import pandas as pd
@@ -18,12 +17,13 @@ compressibi = 2.04e-9
 area = 30.
 thickness = 10.
 wellflow = 0.01
+injectivityflow = 0.01
 
 ''' Inicializando simuladores Pressão - Pressão -------------------------------------------------------------------- '''
-case_to_sim = Sim_fp.InitializeData(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
+case_to_sim = Sim_ff.InitializeData(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
                                     res_thick=thickness, porosity=porosit, viscosity=viscosi,
                                     compressibility=compressibi, wellflow=wellflow, permeability=permeabi,
-                                    res_len=length_reser)
+                                    res_len=length_reser, injectflow=injectivityflow)
 
 ''' Discretização da malha ----------------------------------------------------------------------------------------- '''
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
@@ -32,9 +32,7 @@ t = np.linspace(start=0, stop=100, num=401)
 Functions.create_mesh(well_class=case_to_sim, n_cells=0, time_values=t, deltax=0.5)
 
 ''' Iniciando simulação para ambos os métodos - Analítico e Numérico ----------------------------------------------- '''
-Sim_fp.AnaliticalAnalysis(t=t, well_class=case_to_sim)
-
-Sim_fp.NumericalAnalysis(t=t, well_class=case_to_sim)
+Sim_ff.NumericalAnalysis(t=t, well_class=case_to_sim)
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Fluxo-Pressao'
