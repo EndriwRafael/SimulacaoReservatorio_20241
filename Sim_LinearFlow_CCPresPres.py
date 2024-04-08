@@ -4,12 +4,12 @@ Condições de Contorno de Dirichlet - Pressão no poço e Pressão na fronteira
 
 Método FTCS -- Forward in Time Centered Space
 """
+import Functions
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from pandas import DataFrame as Df
 import os
-# import sys
 
 
 class NumericalAnalysis:
@@ -17,22 +17,6 @@ class NumericalAnalysis:
         self.time = t
         self.well_class = well_class
         self.start_simulate()
-
-    def create_dataframe(self) -> tuple:
-        """
-        Function that will create the dataframe table for the pressure field with relative mesh grid created.
-        :return: A dataframe table that contains the mesh grid that was set.
-        """
-        # Setting the time points as the dataframe columns
-        time_to_columns = [float(t) for t in self.time]
-        # Setting the mesh points as the dataframe index. The points are not the positions in x, they are just the
-        # equivalent cell for the positions.
-        index_for_dataframe = np.linspace(0, self.well_class.n_cells + 1, self.well_class.n_cells + 2)
-        index_for_dataframe = [int(i) for i in index_for_dataframe]
-        # Creating the dataframe table with columns and index
-        pressure = Df(float(0), index=index_for_dataframe, columns=time_to_columns)
-
-        return pressure, time_to_columns, index_for_dataframe
 
     def plot_results(self, data: Df):
         if not os.path.isdir(f'results\\Simulador_Pressao-Pressao'):
@@ -61,7 +45,7 @@ class NumericalAnalysis:
         data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_numerico.xlsx')
 
     def start_simulate(self):
-        pressure_df, col_idx, row_idx = self.create_dataframe()
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells)
 
         last_column = None
         for i_col in col_idx:
@@ -87,18 +71,18 @@ class NumericalAnalysis:
                             p1_t = pressure_df.loc[j_row, last_column]  # pressão no ponto 1, tempo anterior.
                             p2_t = pressure_df.loc[2, last_column]  # pressão no ponto 2, no
                             # tempo anterior
-                            a = (8/3) * self.well_class.eta * self.well_class.rx * self.well_class.well_pressure
+                            a = (8 / 3) * self.well_class.eta * self.well_class.rx * self.well_class.well_pressure
                             b = (1 - (4 * self.well_class.eta * self.well_class.rx)) * p1_t
-                            c = (4/3) * self.well_class.eta * self.well_class.rx * p2_t
+                            c = (4 / 3) * self.well_class.eta * self.well_class.rx * p2_t
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                         elif j_row == self.well_class.n_cells:  # i = N. Ponto central da última célula.
                             p_n_t = pressure_df.loc[j_row, last_column]  # pressão no ponto N, no tempo anterior.
                             p_n_1_t = pressure_df.loc[j_row - 1, last_column]  # pressão no ponto N-1, no
                             # tempo anterior
-                            a = (4/3) * self.well_class.eta * self.well_class.rx * p_n_1_t
+                            a = (4 / 3) * self.well_class.eta * self.well_class.rx * p_n_1_t
                             b = (1 - (4 * self.well_class.eta * self.well_class.rx)) * p_n_t
-                            c = (8/3) * self.well_class.eta * self.well_class.rx * self.well_class.initial_pressure
+                            c = (8 / 3) * self.well_class.eta * self.well_class.rx * self.well_class.initial_pressure
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                         else:
@@ -154,6 +138,10 @@ class AnaliticalAnalysis:
         if not os.path.isdir(f'results\\Simulador_Pressao-Pressao'):
             os.makedirs(f'results\\Simulador_Pressao-Pressao')
 
+        # Setting the mesh points as the dataframe index
+        index_for_dataframe = [round(self.well_class.mesh[key], ndigits=3) for key in self.well_class.mesh.keys()]
+        data = data.set_index(pd.Index(index_for_dataframe, name='x'))
+
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
 
         for column in data.columns:
@@ -173,35 +161,25 @@ class AnaliticalAnalysis:
         data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.xlsx')
 
     def start_simulate(self):
-        pressure = {}
-        for t in self.time:
-            vector_for_time = []
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells)
 
-            if t == 0:
-                for x in self.well_class.mesh.keys():
-                    vector_for_time.append(self.well_class.initial_pressure * (self.well_class.mesh[x] + 1) /
-                                           (self.well_class.mesh[x] + 1))
+        for time in col_idx:
+            if time == 0:
+                for x in row_idx:
+                    pressure_df.loc[x, time] = self.well_class.initial_pressure
             else:
-                for key in self.well_class.mesh.keys():
-                    if self.well_class.mesh[key] == 0:
-                        vector_for_time.append(self.well_class.well_pressure)
-                    elif self.well_class.mesh[key] == self.well_class.res_length:
-                        vector_for_time.append(self.well_class.initial_pressure)
+                for x in row_idx:
+                    if x == 0:
+                        pressure_df.loc[x, time] = self.well_class.well_pressure
                     else:
-                        suma = self.calc_sum(t, self.well_class.mesh[key])
-                        vector_for_time.append((self.well_class.deltaPressure * (self.well_class.mesh[key] /
-                                                                                 self.well_class.res_length +
-                                                                                 ((2 / np.pi) * suma))) +
-                                               self.well_class.well_pressure)
+                        suma = self.calc_sum(time, self.well_class.mesh[x])
+                        value = ((self.well_class.deltaPressure * (self.well_class.mesh[x] /
+                                                                   self.well_class.res_length +
+                                                                   ((2 / np.pi) * suma))) +
+                                 self.well_class.well_pressure)
+                        pressure_df.loc[x, time] = value
 
-            pressure[t] = vector_for_time
-
-        # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.well_class.mesh[key], ndigits=3) for key in self.well_class.mesh.keys()]
-        pressure = {'x': index_for_dataframe, **pressure}
-        # Creating dataframe from the variable 'pressure'
-        pressure = Df(pressure).set_index('x')
-        self.plot_result(data=pressure)
+        self.plot_result(data=pressure_df)
 
 
 class InitializeData:

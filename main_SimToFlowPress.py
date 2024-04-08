@@ -9,7 +9,7 @@ import pandas as pd
 ''' Dados de Entrada ----------------------------------------------------------------------------------------------- '''
 pressure_initial = 19000000.
 pressure_well = 9000000.
-length_reser = 10.
+length_reser = 20.
 permeabi = 9.87e-14
 porosit = 0.2
 viscosi = .001
@@ -45,4 +45,3 @@ data_for_numerical = pd.read_excel(f'{root_results}\\fluxo-pressao_numerico.xlsx
 time_values = np.linspace(t[0], t[-1], 11)
 Functions.plot_graphs_compare(root=root_results, arq_ana=data_for_analitical, arq_num=data_for_numerical,
                               time=time_values)
-

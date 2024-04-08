@@ -9,7 +9,7 @@ import pandas as pd
 ''' Dados de Entrada ----------------------------------------------------------------------------------------------- '''
 pressure_initial = 19000000
 pressure_well = 9000000
-length_reser = 10
+length_reser = 20
 permeabi = 9.87e-14
 porosit = 0.2
 viscosi = .001

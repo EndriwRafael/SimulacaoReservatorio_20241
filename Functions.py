@@ -121,3 +121,20 @@ def create_mesh(well_class: object, time_values: np.ndarray, n_cells: int = 0, d
         sys.exit()
     else:
         well_class.rx = r_x
+
+
+def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:
+    """
+    Function that will create the dataframe table for the pressure field with relative mesh grid created.
+    :return: A dataframe table that contains the mesh grid that was set.
+    """
+    # Setting the time points as the dataframe columns
+    time_to_columns = [float(t) for t in time]
+    # Setting the mesh points as the dataframe index. The points are not the positions in x, they are just the
+    # equivalent cell for the positions.
+    index_for_dataframe = np.linspace(0, n_cells + 1, n_cells + 2)
+    index_for_dataframe = [int(i) for i in index_for_dataframe]
+    # Creating the dataframe table with columns and index
+    pressure = Df(float(0), index=index_for_dataframe, columns=time_to_columns)
+
+    return pressure, time_to_columns, index_for_dataframe
