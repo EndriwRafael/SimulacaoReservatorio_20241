@@ -1,7 +1,7 @@
 """
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Dirichlet nas duas Extremidades
 """
-import Sim_LinearFlow_CCPresPres as Sim_pp
+from Simuladores_Explicito import Sim_LinearFlow_CCPresPres as Sim_pp
 import Functions
 import numpy as np
 import pandas as pd

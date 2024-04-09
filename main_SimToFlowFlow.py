@@ -1,7 +1,7 @@
 """
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Neumann nas duas Extremidades
 """
-import Sim_LinearFlow_CCFlowFlow as Sim_ff
+from Simuladores_Explicito import Sim_LinearFlow_CCFlowFlow as Sim_ff
 import Functions
 import numpy as np
 import pandas as pd
@@ -17,7 +17,7 @@ compressibi = 2.04e-9
 area = 30.
 thickness = 10.
 wellflow = 0.01
-injectivityflow = 0.01
+injectivityflow = 0.007
 
 ''' Inicializando simuladores Pressão - Pressão -------------------------------------------------------------------- '''
 case_to_sim = Sim_ff.InitializeData(initial_press=pressure_initial, well_press=pressure_well, res_area=area,

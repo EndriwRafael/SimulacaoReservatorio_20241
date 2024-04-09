@@ -2,7 +2,7 @@
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condição de Neumann no Poço e de Dirichlet na Extremidade da
 Fronteira
 """
-import Sim_LinearFlow_CCFlowPress as Sim_fp
+from Simuladores_Explicito import Sim_LinearFlow_CCFlowPress as Sim_fp
 import Functions
 import numpy as np
 import pandas as pd

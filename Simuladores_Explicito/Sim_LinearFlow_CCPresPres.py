@@ -19,8 +19,8 @@ class NumericalAnalysis:
         self.start_simulate()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(f'results\\Simulador_Pressao-Pressao'):
-            os.makedirs(f'results\\Simulador_Pressao-Pressao')
+        if not os.path.isdir(f'../results/Simulador_Pressao-Pressao'):
+            os.makedirs(f'../results/Simulador_Pressao-Pressao')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.mesh[key], ndigits=3) for key in self.well_class.mesh.keys()]
@@ -135,8 +135,8 @@ class AnaliticalAnalysis:
         return sum_value
 
     def plot_result(self, data: Df):
-        if not os.path.isdir(f'results\\Simulador_Pressao-Pressao'):
-            os.makedirs(f'results\\Simulador_Pressao-Pressao')
+        if not os.path.isdir(f'../results/Simulador_Pressao-Pressao'):
+            os.makedirs(f'../results/Simulador_Pressao-Pressao')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.mesh[key], ndigits=3) for key in self.well_class.mesh.keys()]
