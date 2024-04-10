@@ -40,10 +40,10 @@ class NumericalAnalysis:
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico.png')
+        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico_Explicit.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico.xlsx')
+        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico_Explicit.xlsx')
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.wellclass.n_cells)
@@ -131,10 +131,10 @@ class AnaliticalAnalysis:
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico.png')
+        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico_Explicit.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico.xlsx')
+        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico_Explicit.xlsx')
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells)
