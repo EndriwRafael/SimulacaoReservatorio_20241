@@ -62,7 +62,7 @@ class NumericalAnalysis:
                         p0_t = pressure_df.loc[j_row + 1, last_column]  # pressão no ponto 1, tempo anterior.
                         pressure_df.loc[j_row, i_col] = p0_t - (((self.wellclass.well_flow * self.wellclass.viscosity)
                                                                  / (self.wellclass.permeability *
-                                                                    self.wellclass.res_area)) * self.wellclass.deltax/2)
+                                                                    self.wellclass.res_area)) * (self.wellclass.deltax/2))
 
                     elif j_row == self.wellclass.n_cells + 1:  # Fronteira externa
                         a = (self.wellclass.injectflow * self.wellclass.viscosity) / \

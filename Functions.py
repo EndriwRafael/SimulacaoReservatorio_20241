@@ -138,3 +138,22 @@ def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:
     pressure = Df(float(0), index=index_for_dataframe, columns=time_to_columns)
 
     return pressure, time_to_columns, index_for_dataframe
+
+
+def create_fieldpressure(n_cells: int, param_values: dict):
+
+    field_matrix = np.zeros((n_cells, n_cells))
+    for i in range(n_cells):
+        if i == 0:
+            field_matrix[i, 0], field_matrix[i, 1] = param_values['a'], param_values['b']
+        elif i == n_cells - 1:
+            field_matrix[i, n_cells-2], field_matrix[i, n_cells-1] = param_values['b'], param_values['a']
+        else:
+            field_matrix[i, i-1], field_matrix[i, i], field_matrix[i, i+1] = param_values['c'], param_values['d'], \
+                param_values['c']
+
+    constant_matrix = np.zeros(n_cells)
+    constant_matrix[0] = param_values['f1']
+    constant_matrix = np.append(constant_matrix, param_values['fn'])
+
+    return field_matrix,  constant_matrix

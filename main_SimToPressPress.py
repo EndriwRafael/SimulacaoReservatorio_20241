@@ -36,8 +36,8 @@ Sim_pp.NumericalAnalysis(t=t, well_class=case_to_sim)
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Pressao-Pressao'
-data_for_analitical = pd.read_excel(f'{root_results}\\pressao-pressao_analitico.xlsx').set_index('x')
-data_for_numerical = pd.read_excel(f'{root_results}\\pressao-pressao_numerico.xlsx').set_index('x')
+data_for_analitical = pd.read_excel(f'{root_results}\\pressao-pressao_analitico_Explicit.xlsx').set_index('x')
+data_for_numerical = pd.read_excel(f'{root_results}\\pressao-pressao_numerico_Explicit.xlsx').set_index('x')
 
 # Plotagem de apenas algumas curvas para melhor visualização. O arquivo .xlsx completo contém a quantidade curvas
 # inseridas na discretização da malha.
