@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 from pandas import DataFrame as Df
 import os
-from scipy.special import erfc
 
 
 class NumericalAnalysis:
@@ -63,7 +62,7 @@ class NumericalAnalysis:
                         p0_t = pressure_df.loc[j_row + 1, last_column]  # pressão no ponto 1, tempo anterior.
                         pressure_df.loc[j_row, i_col] = p0_t - (((self.wellclass.well_flow * self.wellclass.viscosity)
                                                                  / (self.wellclass.permeability *
-                                                                    self.wellclass.res_area)) * self.wellclass.deltax / 2)
+                                                                    self.wellclass.res_area)) * self.wellclass.deltax/2)
 
                     elif j_row == self.wellclass.n_cells + 1:  # Fronteira externa
                         a = (self.wellclass.injectflow * self.wellclass.viscosity) / \
@@ -88,7 +87,7 @@ class NumericalAnalysis:
                             p_n_t = pressure_df.loc[j_row, last_column]  # pressão no ponto N, no tempo anterior.
                             p_n_1_t = pressure_df.loc[j_row - 1, last_column]  # pressão no ponto N-1, no
                             # tempo anterior
-                            a = - self.wellclass.eta * self.wellclass.rx * p_n_1_t
+                            a = self.wellclass.eta * self.wellclass.rx * p_n_1_t
                             b = (1 - (self.wellclass.eta * self.wellclass.rx)) * p_n_t
                             c = - (self.wellclass.eta * self.wellclass.rx * self.wellclass.injectflow *
                                    self.wellclass.viscosity * self.wellclass.deltax) / (self.wellclass.permeability *
