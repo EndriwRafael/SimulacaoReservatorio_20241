@@ -1,7 +1,7 @@
 """
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Neumann nas duas Extremidades
 """
-from Simuladores_Explicito import Sim_LinearFlow_CCFlowFlow as Sim_ff
+from Simuladores_LinearFlow import Explicit_CCFlowFlow as Sim_ff
 import Functions
 import numpy as np
 import pandas as pd
