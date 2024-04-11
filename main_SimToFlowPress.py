@@ -5,6 +5,7 @@ Fronteira
 import Objects_Cases as Case
 from Simuladores_LinearFlow import Analitical as Asim
 from Simuladores_LinearFlow import Numerical_EXPLICIT as NsimExp
+from Simuladores_LinearFlow import Numerical_IMPLICIT as NsimEmp
 import Functions
 import numpy as np
 import pandas as pd
@@ -34,9 +35,12 @@ t_explicit = np.linspace(start=0, stop=100, num=401)
 Functions.create_mesh(well_class=case_explicit, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
 
 ''' Iniciando simulação para ambos os métodos - Analítico e Numérico ----------------------------------------------- '''
-Asim.WellFlowAndPressureBoundaries(t=t_explicit, well_class=case_explicit)
+# Para a analítica e a numérica explicita, será usado a mesma discretização de malha!
+Asim.WellFlowAndPressureBoundaries(t=t_explicit, well_class=case_explicit)  # Solução Analítica
+NsimExp.WellFlowAndPressureBoundaries(t=t_explicit, well_class=case_explicit)  # Solução Numérica Explicita
 
-NsimExp.WellFlowAndPressureBoundaries(t=t_explicit, well_class=case_explicit)
+# Para a numérica implicita, a discretização será diferente, pois não possui critério de convergência!
+NsimEmp.WellFlowAndPressureBoundaries(t=t_explicit, well_class=case_explicit)  # Solução Numérica Implicita
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Fluxo-Pressao'
