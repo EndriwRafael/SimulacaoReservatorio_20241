@@ -1,7 +1,9 @@
 """
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Dirichlet nas duas Extremidades
 """
-from Simuladores_LinearFlow import Explicit_CCPresPres as Sim_pp
+import Objects_Cases as Case
+from Simuladores_LinearFlow import Analitical as Asim
+from Simuladores_LinearFlow import Numerical_EXPLICIT as NsimExp
 import Functions
 import numpy as np
 import pandas as pd
@@ -19,9 +21,9 @@ thickness = 10
 wellflow = 0.01
 
 ''' Inicializando simuladores Pressão - Pressão -------------------------------------------------------------------- '''
-case_to_sim = Sim_pp.InitializeData(initialpressure=pressure_initial, wellpressure=pressure_well,
-                                    reserlength=length_reser, permeability=permeabi, viscosity=viscosi,
-                                    porosity=porosit, compresibility=compressibi)
+case_to_sim = Case.PressureBoundaries(initialpressure=pressure_initial, wellpressure=pressure_well,
+                                      reserlength=length_reser, permeability=permeabi, viscosity=viscosi,
+                                      porosity=porosit, compresibility=compressibi)
 
 ''' Discretização da malha ----------------------------------------------------------------------------------------- '''
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
@@ -30,9 +32,9 @@ t = np.linspace(start=0, stop=100, num=401)
 Functions.create_mesh(well_class=case_to_sim, n_cells=0, time_values=t, deltax=0.5)
 
 ''' Iniciando simulação para ambos os métodos - Analítico e Numérico ----------------------------------------------- '''
-Sim_pp.AnaliticalAnalysis(t=t, well_class=case_to_sim)
+Asim.PressureBoundaries(t=t, well_class=case_to_sim)
 
-Sim_pp.NumericalAnalysis(t=t, well_class=case_to_sim)
+NsimExp.PressureBoundaries(t=t, well_class=case_to_sim)
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Pressao-Pressao'
