@@ -70,10 +70,10 @@ class PressureBoundaries:
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico_Explicit.png')
+        plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico_Explicit.xlsx')
+        data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.xlsx')
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells)
@@ -125,10 +125,10 @@ class WellFlowAndPressureBoundaries:
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico_Explicit.png')
+        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico_Explicit.xlsx')
+        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico.xlsx')
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells)

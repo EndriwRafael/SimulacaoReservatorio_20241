@@ -64,7 +64,7 @@ def plot_graphs_compare(root: str, arq_ana: Df, arq_num: Df, time: np.ndarray):
     plt.close()
 
 
-def create_mesh(well_class: object, time_values: np.ndarray, n_cells: int = 0, deltax: float or int = 0):
+def create_mesh(well_class: object, time_values: np.ndarray, method: str, n_cells: int = 0, deltax: float or int = 0):
     """
     Function to generate the grid for simulating pressure field. You can pass the value of cells that you wish your
     grid to have or the distance between the points. If you set one of then, you must set the other value equal to
@@ -76,6 +76,7 @@ def create_mesh(well_class: object, time_values: np.ndarray, n_cells: int = 0, d
     :param deltax: The distance between the points in the grid. It can be an integer or a float value. Set deltax =
     0 if you pass n_cells!
     :param time_values: The
+    :param method:
     :return: The mesh dict of your problem with the internal points and the two contour points!
     """
     if type(n_cells) is not int:
@@ -114,13 +115,15 @@ def create_mesh(well_class: object, time_values: np.ndarray, n_cells: int = 0, d
 
     delta_t = time_values[1] - time_values[0]
     r_x = delta_t / (well_class.deltax ** 2)
+    well_class.rx = r_x
 
-    if r_x * well_class.eta >= 0.25:
-        print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
-        print(f'rx = {r_x} // eta = {well_class.eta}  // (rx * eta) = {r_x * well_class.eta}')
-        sys.exit()
-    else:
-        well_class.rx = r_x
+    if method == 'Explict':
+        if r_x * well_class.eta >= 0.25:
+            print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
+            print(f'rx = {r_x} // eta = {well_class.eta}  // (rx * eta) = {r_x * well_class.eta}')
+            sys.exit()
+        else:
+            well_class.rx = r_x
 
 
 def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:
