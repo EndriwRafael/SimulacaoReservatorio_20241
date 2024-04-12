@@ -128,8 +128,8 @@ class WellFlowAndPressureBoundaries:
             'c': 1 + (2 * self.well_class.rx * self.well_class.eta),
             'd': - (4 / 3) * self.well_class.rx * self.well_class.eta,
             'e': 1 + (4 * self.well_class.rx * self.well_class.eta),
-            'f1': (self.well_class.rx * self.well_class.eta * self.well_class.well_flow * self.well_class.viscosity *
-                   self.well_class.deltax) / (self.well_class.permeability * self.well_class.res_area),
+            'f1': - (self.well_class.rx * self.well_class.eta * self.well_class.well_flow * self.well_class.viscosity *
+                     self.well_class.deltax) / (self.well_class.permeability * self.well_class.res_area),
             'fn': (8 / 3) * self.well_class.rx * self.well_class.eta * self.well_class.initial_pressure
         }
 
