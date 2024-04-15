@@ -22,7 +22,7 @@ thickness = 10
 wellflow = 0.01
 
 ''' Inicializando simuladores Pressão - Pressão -------------------------------------------------------------------- '''
-case_explicit = Case.PressureBoundaries(initialpressure=pressure_initial, wellpressure=pressure_well,
+case = Case.PressureBoundaries(initialpressure=pressure_initial, wellpressure=pressure_well,
                                         reserlength=length_reser, permeability=permeabi, viscosity=viscosi,
                                         porosity=porosit, compresibility=compressibi)
 
@@ -30,15 +30,17 @@ case_explicit = Case.PressureBoundaries(initialpressure=pressure_initial, wellpr
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
 # estejam incoerentes, o código retornar um erro avisando que o critério de convergência não foi respeitado!
 t_explicit = np.linspace(start=0, stop=100, num=401)
-Functions.create_mesh(well_class=case_explicit, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
+t_implicit = np.linspace(start=0, stop=100, num=11)
+Functions.create_mesh(well_class=case, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
+Functions.create_mesh(well_class=case, n_cells=0, time_values=t_implicit, deltax=0.01, method='Implicit')
 
 ''' Iniciando simulação para ambos os métodos - Analítico e Numérico ----------------------------------------------- '''
 # Para a analítica e a numérica explicita, será usado a mesma discretização de malha!
-Asim.PressureBoundaries(t=t_explicit, well_class=case_explicit)  # Solução Analítica
-NsimExp.PressureBoundaries(t=t_explicit, well_class=case_explicit)  # Solução Numérica Explicita
+Asim.PressureBoundaries(t=t_explicit, well_class=case)  # Solução Analítica
+NsimExp.PressureBoundaries(t=t_explicit, well_class=case)  # Solução Numérica Explicita
 
 # Para a numérica implicita, a discretização será diferente, pois não possui critério de convergência!
-NsimEmp.PressureBoundaries(t=t_explicit, well_class=case_explicit)  # Solução Numérica Implicita
+NsimEmp.PressureBoundaries(t=t_implicit, well_class=case)  # Solução Numérica Implicita
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Pressao-Pressao'

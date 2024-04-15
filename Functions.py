@@ -4,6 +4,7 @@ import numpy as np
 import random as rm
 from matplotlib.lines import Line2D
 import sys
+import Objects_Cases as ObjC
 
 
 def set_color(list_color: list):
@@ -92,38 +93,48 @@ def create_mesh(well_class: object, time_values: np.ndarray, method: str, n_cell
               f'You must set at least one of then non-zero. Or you can set just one of then.')
         sys.exit()
 
+    if method != 'Explicit' and method != 'Implicit' and method != 'Analitical':
+        print(f'Error!!! The parameter "method" must be set as "Explicit", "Implicit" or "Analitical".')
+        sys.exit()
+
     if deltax == 0:  # the creation of the grid depends on the number of cells
-        well_class.n_cells = n_cells
-        well_class.deltax = well_class.res_length / well_class.n_cells
-        initial_point = well_class.deltax / 2
-        final_point = well_class.res_length - well_class.deltax / 2
-        x_array = np.linspace(initial_point, final_point, well_class.n_cells)  # internal points of the grid
+        deltax = well_class.res_length / n_cells
+        initial_point = deltax / 2
+        final_point = well_class.res_length - deltax / 2
+        x_array = np.linspace(initial_point, final_point, n_cells)  # internal points of the grid
         x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
         x_array = np.append(x_array, int(well_class.res_length))  # insert the final contour point
         x_array = [round(i, ndigits=3) for i in x_array]
-        well_class.mesh = {i: x_array[i] for i in range(len(x_array))}
+        grid = {i: x_array[i] for i in range(len(x_array))}
+        # well_class.mesh = {i: x_array[i] for i in range(len(x_array))}
+        ObjC.MeshCases(grid=grid, cells=n_cells, method=method, well_method=well_class)
     else:  # the creation of the grid depends on the value of deltax
-        well_class.deltax = deltax
-        well_class.n_cells = int(well_class.res_length / well_class.deltax)
-        initial_point = well_class.deltax / 2
-        final_point = well_class.res_length - well_class.deltax / 2
-        x_array = np.linspace(initial_point, final_point, well_class.n_cells)  # internal points of the grid
+        n_cells = int(well_class.res_length / deltax)
+        initial_point = deltax / 2
+        final_point = well_class.res_length - deltax / 2
+        x_array = np.linspace(initial_point, final_point, n_cells)  # internal points of the grid
         x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
         x_array = np.append(x_array, int(well_class.res_length))  # insert the final contour point
         x_array = [round(i, ndigits=3) for i in x_array]
-        well_class.mesh = {i: x_array[i] for i in range(len(x_array))}
+        grid = {i: x_array[i] for i in range(len(x_array))}
+        # well_class.mesh = {i: x_array[i] for i in range(len(x_array))}
+        ObjC.MeshCases(grid=grid, cells=n_cells, method=method, well_method=well_class)
 
     delta_t = time_values[1] - time_values[0]
-    r_x = delta_t / (well_class.deltax ** 2)
-    well_class.rx = r_x
 
-    if method == 'Explict':
-        if r_x * well_class.eta >= 0.25:
+    if method == 'Explicit':
+        r_x_explicit = delta_t / (deltax ** 2)
+        well_class.rx_explicit = r_x_explicit
+        well_class.deltax_explicit = deltax
+        if r_x_explicit * well_class.eta >= 0.25:
             print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
-            print(f'rx = {r_x} // eta = {well_class.eta}  // (rx * eta) = {r_x * well_class.eta}')
+            print(f'rx = {r_x_explicit} // eta = {well_class.eta}  // (rx * eta) = {r_x_explicit * well_class.eta}')
             sys.exit()
         else:
-            well_class.rx = r_x
+            pass
+    else:
+        well_class.rx_implicit = delta_t / (deltax ** 2)
+        well_class.deltax_implicit = deltax
 
 
 def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:

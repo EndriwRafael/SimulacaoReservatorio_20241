@@ -55,3 +55,24 @@ class FlowPressureBoundaries:
     def calc_eta(self) -> float:
         eta = self.permeability / (self.viscosity * self.compressibility * self.porosity)
         return eta
+
+
+class MeshCases:
+    def __init__(self, grid: dict, cells: int, method: str, well_method: object):
+        self.mesh_to_plot = grid
+        self.n_cells = cells
+        self.method_name = method
+        self.wellclass = well_method
+        self.create_mesh()
+
+    def create_mesh(self):
+        if self.method_name == "Explicit":
+            self.wellclass.explicit_mesh = self.mesh_to_plot
+            self.wellclass.n_cells_explicit = self.n_cells
+        elif self.method_name == "Implicit":
+            self.wellclass.implicit_mesh = self.mesh_to_plot
+            self.wellclass.n_cells_implicit = self.n_cells
+        else:
+            self.wellclass.analitical_mesh = self.mesh_to_plot
+            self.wellclass.n_cells_analitical = self.n_cells
+        pass
