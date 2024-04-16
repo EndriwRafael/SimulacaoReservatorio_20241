@@ -11,48 +11,46 @@ def set_color(list_color: list):
     while True:
         a = rm.randint(0, 9)
         if f'C{a}' not in list_color:
-            list_color.append(f'C{a}')
             break
     return f'C{a}'
 
 
-def plot_graphs_compare(root: str, arq_ana: Df, arq_num: Df, time: np.ndarray):
+def plot_graphs_compare(root: str, dataclass: object, time: np.ndarray):
     """
     Function to plot graphs from both methods (analitical and numerical) to compare curves.
 
     :param root: Path that contains the results from methods to save the final graph. Must be string.
-    :param arq_ana: Dataframe that refers to the result of analitical solution.
-    :param arq_num: Dataframe that refers to the result of numerical solution.
+    :param dataclass: Class object that contains the simulation results.
     :param time: Array for times that will be plot on graph.
     :return: Plot and save the comparision graph.
     """
 
-    arq_ana_index = arq_ana.index.values
-    arq_num_index = arq_num.index.values
-    if arq_ana_index.all() != arq_num_index.all():
-        print('Error! Os dataframes disponibilizados possuem discretização de malha diferentes.')
-        sys.exit()
+    analitical_solution = dataclass.dataframe_to_analitical
+    explicit_solution = dataclass.dataframe_to_explicit
+    implicit_solution = dataclass.dataframe_to_implicit
+
+    conjunto1, conjunto2 = set(explicit_solution.index.values), set(implicit_solution.index.values)
+    equal_index = conjunto1 & conjunto2
 
     color_list = []
     fig, ax = plt.subplots()
     for t in time:
-        if t not in arq_ana.columns or t not in arq_num.columns:
-            print(f'Error! O valor selecionado (t = {t}) não foi encontrado nos dataframes disponibilizados.')
-            sys.exit()
 
         if len(color_list) == 10:
             color_list = []
 
-        color = set_color(list_color=color_list)
+        color_list.append(set_color(list_color=color_list))
 
-        ax.plot(arq_ana.index, arq_ana[t], '.', color=color, label='_nolegend_')
-        ax.plot(arq_num.index, arq_num[t], '-', color=color, label='_nolegend_')
-
-        color_list.append(color)
+        ax.scatter(explicit_solution.index, explicit_solution[t], marker='o', s=5,
+                   color=color_list[-1], label='_nolegend_')
+        ax.scatter(implicit_solution.index, implicit_solution[t], marker='^', s=2,
+                   color=color_list[-1], label='_nolegend_')
+        ax.plot(analitical_solution.index, analitical_solution[t], '-', color=color_list[-1], label='_nolegend_')
 
     # Criação manual das entradas da legenda
-    legend_elements = [Line2D([0], [0], linestyle='dotted', color='black', label='Analítico'),
-                       Line2D([0], [0], linestyle='-', color='black', label='Numérico')]
+    legend_elements = [Line2D([0], [0], linestyle='-', color='black', label='Numérico'),
+                       Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Explicit'),
+                       Line2D([0], [0], marker='^', color='w', markerfacecolor='red', markersize=10, label='Implicit')]
 
     plt.ticklabel_format(axis='y', style='plain')
     plt.xlabel('Comprimento (m)')
@@ -63,6 +61,18 @@ def plot_graphs_compare(root: str, arq_ana: Df, arq_num: Df, time: np.ndarray):
     plt.tight_layout()
     fig.savefig(f'{root}\\ComparacaoFinal.png')
     plt.close()
+
+
+def plot_animation_compare(root: str, dataclass: object, time: np.ndarray):
+    """
+    Function to create and plot animation from simulation's dataframes to compare the results.
+
+    :param root: Path that contains the results from methods to save the final graph. Must be string.
+    :param dataclass: Class object that contains the simulation results.
+    :param time: Array for times that will be plot on graph.
+    :return: Plot and save the comparision animation.
+    """
+    return []
 
 
 def create_mesh(well_class: object, time_values: np.ndarray, method: str, n_cells: int = 0, deltax: float or int = 0):

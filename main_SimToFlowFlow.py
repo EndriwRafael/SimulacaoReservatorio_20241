@@ -21,7 +21,7 @@ wellflow = 0.01
 injectivityflow = 0.01
 
 ''' Inicializando simuladores Fluxo - Fluxo ------------------------------------------------------------------------ '''
-case_explicit = Case.FlowBoundaries(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
+case = Case.FlowBoundaries(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
                                     res_thick=thickness, porosity=porosit, viscosity=viscosi,
                                     compressibility=compressibi, wellflow=wellflow, permeability=permeabi,
                                     res_len=length_reser, injectflow=injectivityflow)
@@ -30,10 +30,12 @@ case_explicit = Case.FlowBoundaries(initial_press=pressure_initial, well_press=p
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
 # estejam incoerentes, o código retornar um erro avisando que o critério de convergência não foi respeitado!
 t_explicit = np.linspace(start=0, stop=100, num=401)
-Functions.create_mesh(well_class=case_explicit, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
+t_implicit = np.linspace(start=0, stop=100, num=11)
+Functions.create_mesh(well_class=case, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
+Functions.create_mesh(well_class=case, n_cells=0, time_values=t_implicit, deltax=0.1, method='Implicit')
 
 ''' Iniciando simulação para os métodos - Numérico ----------------------------------------------------------------- '''
-NsimExp.FlowBoundaries(t=t_explicit, well_class=case_explicit)
+NsimExp.FlowBoundaries(t=t_explicit, well_class=case)
 
 ''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
 root_results = r'results\Simulador_Fluxo-Fluxo'

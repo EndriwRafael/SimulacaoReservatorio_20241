@@ -1,16 +1,40 @@
-import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-# Defina o lado esquerdo das equações (coeficientes das variáveis)
-left_side = np.array([[3, 2, -1],
-                      [2, -2, 4],
-                      [-1, 0.5, -1]])
+# Crie um DataFrame de exemplo
+data = {
+    'coluna1': [1, 2, 3, 4, 5],
+    'coluna2': [2, 3, 4, 5, 6],
+    'coluna3': [3, 4, 5, 6, 7]
+}
+df = pd.DataFrame(data)
 
-# Defina o lado direito das equações (resultados das equações)
-right_side = np.array([1, -2, 0])
+# Crie a figura e o eixo
+fig, ax = plt.subplots()
 
-# Resolva o sistema linear
-solution = np.linalg.solve(left_side, right_side)
+# Inicialize o gráfico vazio
+lines = [ax.plot([], [], label=coluna)[0] for coluna in df.columns]
 
-# Exiba os valores das variáveis
-x, y, z = solution
-print(f"Solução: x = {x}, y = {y}, z = {z}")
+# Defina a função de inicialização
+def init():
+    for line in lines:
+        line.set_data([], [])
+    ax.set_xlim(0, len(df.index) - 1)
+    ax.set_ylim(df.min().min(), df.max().max())
+    ax.legend()
+    return lines
+
+# Defina a função de animação
+def animate(i):
+    for line, coluna in zip(lines, df.columns):
+        line.set_data(df.index[:i+1], df[coluna][:i+1])
+    return lines
+
+# Crie a animação
+ani = FuncAnimation(fig, animate, frames=len(df), init_func=init, blit=True)
+
+# Salve a animação em um arquivo MP4 usando o escritor de filmes ffmpeg
+ani.save('animacao.gif', fps=2, writer='ffmpeg')
+
+plt.show()

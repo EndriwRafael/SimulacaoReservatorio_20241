@@ -30,7 +30,8 @@ class PressureBoundaries:
             os.makedirs(f'../results/Simulador_Pressao-Pressao')
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3) for key in self.well_class.implicit_mesh.keys()]
+        index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3)
+                               for key in self.well_class.implicit_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
@@ -50,10 +51,11 @@ class PressureBoundaries:
         plt.close()
 
         data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_numerico_Implicit.xlsx')
-        self.well_class.dataframe_TO_implicit = data
+        self.well_class.dataframe_to_implicit = data
 
     def start_simulate(self):
-        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells_implicit)
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
+                                                                   n_cells=self.well_class.n_cells_implicit)
 
         param = {
             'a': 1 + (4 * self.well_class.rx_implicit * self.well_class.eta),
@@ -105,7 +107,8 @@ class WellFlowAndPressureBoundaries:
             os.makedirs(f'../results/Simulador_Fluxo-Pressao')
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3) for key in self.well_class.implicit_mesh.keys()]
+        index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3)
+                               for key in self.well_class.implicit_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
@@ -125,10 +128,11 @@ class WellFlowAndPressureBoundaries:
         plt.close()
 
         data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico_Implicit.xlsx')
-        self.well_class.dataframe_TO_implicit = data
+        self.well_class.dataframe_to_implicit = data
 
     def start_simulate(self):
-        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells_implicit)
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
+                                                                   n_cells=self.well_class.n_cells_implicit)
 
         param = {
             'a': 1 + (self.well_class.rx_implicit * self.well_class.eta),
@@ -136,7 +140,8 @@ class WellFlowAndPressureBoundaries:
             'c': 1 + (2 * self.well_class.rx_implicit * self.well_class.eta),
             'd': - (4 / 3) * self.well_class.rx_implicit * self.well_class.eta,
             'e': 1 + (4 * self.well_class.rx_implicit * self.well_class.eta),
-            'f1': - (self.well_class.rx_implicit * self.well_class.eta * self.well_class.well_flow * self.well_class.viscosity *
+            'f1': - (self.well_class.rx_implicit * self.well_class.eta * self.well_class.well_flow *
+                     self.well_class.viscosity *
                      self.well_class.deltax_implicit) / (self.well_class.permeability * self.well_class.res_area),
             'fn': (8 / 3) * self.well_class.rx_implicit * self.well_class.eta * self.well_class.initial_pressure
         }

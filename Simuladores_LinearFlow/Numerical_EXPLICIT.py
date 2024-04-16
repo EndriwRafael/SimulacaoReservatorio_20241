@@ -29,7 +29,8 @@ class PressureBoundaries:
             os.makedirs(f'../results/Simulador_Pressao-Pressao')
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.well_class.explicit_mesh[key], ndigits=3) for key in self.well_class.explicit_mesh.keys()]
+        index_for_dataframe = [round(self.well_class.explicit_mesh[key], ndigits=3)
+                               for key in self.well_class.explicit_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
@@ -52,7 +53,8 @@ class PressureBoundaries:
         self.well_class.dataframe_to_explicit = data
 
     def start_simulate(self):
-        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.well_class.n_cells_explicit)
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
+                                                                   n_cells=self.well_class.n_cells_explicit)
 
         start_time = time.time()
         last_column = None
@@ -79,7 +81,8 @@ class PressureBoundaries:
                             p1_t = pressure_df.loc[j_row, last_column]  # pressão no ponto 1, tempo anterior.
                             p2_t = pressure_df.loc[2, last_column]  # pressão no ponto 2, no
                             # tempo anterior
-                            a = (8 / 3) * self.well_class.eta * self.well_class.rx_explicit * self.well_class.well_pressure
+                            a = (8 / 3) * self.well_class.eta * self.well_class.rx_explicit * \
+                                self.well_class.well_pressure
                             b = (1 - (4 * self.well_class.eta * self.well_class.rx_explicit)) * p1_t
                             c = (4 / 3) * self.well_class.eta * self.well_class.rx_explicit * p2_t
                             pressure_df.loc[j_row, i_col] = a + b + c
@@ -90,7 +93,8 @@ class PressureBoundaries:
                             # tempo anterior
                             a = (4 / 3) * self.well_class.eta * self.well_class.rx_explicit * p_n_1_t
                             b = (1 - (4 * self.well_class.eta * self.well_class.rx_explicit)) * p_n_t
-                            c = (8 / 3) * self.well_class.eta * self.well_class.rx_explicit * self.well_class.initial_pressure
+                            c = (8 / 3) * self.well_class.eta * self.well_class.rx_explicit * \
+                                self.well_class.initial_pressure
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                         else:
@@ -122,7 +126,8 @@ class WellFlowAndPressureBoundaries:
             os.makedirs(f'../results/Simulador_Fluxo-Pressao')
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.wellclass.explicit_mesh[key], ndigits=3) for key in self.wellclass.explicit_mesh.keys()]
+        index_for_dataframe = [round(self.wellclass.explicit_mesh[key], ndigits=3)
+                               for key in self.wellclass.explicit_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
@@ -142,10 +147,11 @@ class WellFlowAndPressureBoundaries:
         plt.close()
 
         data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico_Explicit.xlsx')
-        self.wellclass.dataframe_TO_explicit = data
+        self.wellclass.dataframe_to_explicit = data
 
     def start_simulate(self):
-        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.wellclass.n_cells_explicit)
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
+                                                                   n_cells=self.wellclass.n_cells_explicit)
 
         start_time = time.time()
         last_column = None
@@ -163,7 +169,8 @@ class WellFlowAndPressureBoundaries:
                         p0_t = pressure_df.loc[j_row + 1, last_column]  # pressão no ponto 1, tempo anterior.
                         pressure_df.loc[j_row, i_col] = p0_t - (((self.wellclass.well_flow * self.wellclass.viscosity)
                                                                  / (self.wellclass.permeability *
-                                                                    self.wellclass.res_area)) * self.wellclass.deltax_explicit/2)
+                                                                    self.wellclass.res_area)) *
+                                                                self.wellclass.deltax_explicit/2)
 
                     elif j_row == self.wellclass.n_cells_explicit + 1:
                         pressure_df.loc[j_row, i_col] = self.wellclass.initial_pressure
@@ -186,7 +193,8 @@ class WellFlowAndPressureBoundaries:
                             # tempo anterior
                             a = (4 / 3) * self.wellclass.eta * self.wellclass.rx_explicit * p_n_1_t
                             b = (1 - (4 * self.wellclass.eta * self.wellclass.rx_explicit)) * p_n_t
-                            c = (8 / 3) * self.wellclass.eta * self.wellclass.rx_explicit * self.wellclass.initial_pressure
+                            c = (8 / 3) * self.wellclass.eta * self.wellclass.rx_explicit * \
+                                self.wellclass.initial_pressure
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                         else:
@@ -217,7 +225,8 @@ class FlowBoundaries:
             os.makedirs(f'../results/Simulador_Fluxo-Fluxo')
 
         # Setting the mesh points as the dataframe index
-        index_for_dataframe = [round(self.wellclass.explicit_mesh[key], ndigits=3) for key in self.wellclass.explicit_mesh.keys()]
+        index_for_dataframe = [round(self.wellclass.explicit_mesh[key], ndigits=3)
+                               for key in self.wellclass.explicit_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
         time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
@@ -237,10 +246,11 @@ class FlowBoundaries:
         plt.close()
 
         data.to_excel(f'results\\Simulador_Fluxo-Fluxo\\fluxo-fluxo_numerico_Explicit.xlsx')
-        self.wellclass.dataframe_TO_explicit = data
+        self.wellclass.dataframe_to_explicit = data
 
     def start_simulate(self):
-        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time, n_cells=self.wellclass.n_cells_explicit)
+        pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
+                                                                   n_cells=self.wellclass.n_cells_explicit)
 
         start_time = time.time()
         last_column = None
@@ -287,8 +297,8 @@ class FlowBoundaries:
                             a = self.wellclass.eta * self.wellclass.rx_explicit * p_n_1_t
                             b = (1 - (self.wellclass.eta * self.wellclass.rx_explicit)) * p_n_t
                             c = - (self.wellclass.eta * self.wellclass.rx_explicit * self.wellclass.injectflow *
-                                   self.wellclass.viscosity * self.wellclass.deltax_explicit) / (self.wellclass.permeability *
-                                                                                        self.wellclass.res_area)
+                                   self.wellclass.viscosity * self.wellclass.deltax_explicit) / \
+                                (self.wellclass.permeability * self.wellclass.res_area)
                             pressure_df.loc[j_row, i_col] = a + b + c
 
                         else:
