@@ -33,7 +33,7 @@ case = Case.FlowPressureBoundaries(initial_press=pressure_initial, well_press=pr
 # estejam incoerentes, o código retornar um erro avisando que o critério de convergência não foi respeitado!
 t_explicit = np.linspace(start=0, stop=100, num=401)
 t_analitical, t_implicit = np.linspace(start=0, stop=100, num=11), np.linspace(start=0, stop=100, num=11)
-Functions.create_mesh(well_class=case, n_cells=0, time_values=t_analitical, deltax=0.01, method='Analitical')
+Functions.create_mesh(well_class=case, n_cells=0, time_values=t_analitical, deltax=0.1, method='Analitical')
 Functions.create_mesh(well_class=case, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
 Functions.create_mesh(well_class=case, n_cells=0, time_values=t_implicit, deltax=0.1, method='Implicit')
 
@@ -53,3 +53,10 @@ root_results = r'results\Simulador_Fluxo-Pressao'
 time_values = np.linspace(10, 100, 4)
 Functions.plot_graphs_compare(root=root_results, dataclass=case,
                               time=time_values)
+
+# time_values = np.linspace(0, 100, 11)
+# Functions.plot_animation_compare(root=root_results, dataclass=case, time=time_values)
+
+time_values = [20., 50., 80.]
+Functions.calc_erro(root=root_results, dataclass=case,
+                    time=time_values)

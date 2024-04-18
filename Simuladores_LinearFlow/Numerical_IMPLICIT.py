@@ -163,8 +163,9 @@ class WellFlowAndPressureBoundaries:
                 b = vetor_last_pressure + const_matrix
                 vetor_next_pressure = solve(pressure_matrix_, b)
 
-                p1_t = pressure_df[last_col][1]  # pressão no ponto 1, tempo anterior.
-                value_to_add = p1_t - (((self.well_class.well_flow * self.well_class.viscosity) /
+                # p1_t = pressure_df[last_col][1]  # pressão no ponto 1, tempo anterior.
+                p1_t = pressure_df.loc[1, last_col]  # pressão no ponto 1, tempo anterior.
+                value_to_add = - p1_t + (((self.well_class.well_flow * self.well_class.viscosity) /
                                         (self.well_class.permeability * self.well_class.res_area)) *
                                        (self.well_class.deltax_implicit / 2))
 

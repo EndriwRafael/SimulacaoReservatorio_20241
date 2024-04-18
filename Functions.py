@@ -30,7 +30,6 @@ def plot_graphs_compare(root: str, dataclass: object, time: np.ndarray):
     implicit_solution = dataclass.dataframe_to_implicit
 
     conjunto1, conjunto2 = set(explicit_solution.index.values), set(implicit_solution.index.values)
-    equal_index = conjunto1 & conjunto2
 
     color_list = []
     fig, ax = plt.subplots()
@@ -41,14 +40,15 @@ def plot_graphs_compare(root: str, dataclass: object, time: np.ndarray):
 
         color_list.append(set_color(list_color=color_list))
 
+        # color: color_list[-1]
+        ax.plot(analitical_solution.index, analitical_solution[t], '-', color='black', label='_nolegend_', linewidth=1)
         ax.scatter(explicit_solution.index, explicit_solution[t], marker='o', s=5,
-                   color=color_list[-1], label='_nolegend_')
+                   color='blue', label='_nolegend_')
         ax.scatter(implicit_solution.index, implicit_solution[t], marker='^', s=2,
-                   color=color_list[-1], label='_nolegend_')
-        ax.plot(analitical_solution.index, analitical_solution[t], '-', color=color_list[-1], label='_nolegend_')
+                   color='red', label='_nolegend_')
 
     # Criação manual das entradas da legenda
-    legend_elements = [Line2D([0], [0], linestyle='-', color='black', label='Numérico'),
+    legend_elements = [Line2D([0], [0], linestyle='-', color='black', label='Analítico'),
                        Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Explicit'),
                        Line2D([0], [0], marker='^', color='w', markerfacecolor='red', markersize=10, label='Implicit')]
 
@@ -72,6 +72,30 @@ def plot_animation_compare(root: str, dataclass: object, time: np.ndarray):
     :param time: Array for times that will be plot on graph.
     :return: Plot and save the comparision animation.
     """
+
+    args = {atributo: valor for atributo, valor in dataclass.__dict__.items() if type(valor) == Df}
+    limx, limy = [min(dataclass.dataframe_to_explicit.index), max(dataclass.dataframe_to_explicit.index)], \
+        [dataclass.well_pressure, dataclass.initial_pressure]
+
+    ObjC.Animation(root=root, dict_frames=args, t_values=time, limits=[limx, limy])
+
+
+def calc_erro(root: str, dataclass: object, time: list):
+    args = {atributo: valor for atributo, valor in dataclass.__dict__.items() if type(valor) == Df}
+    conjunto_analitical, conjunto_explicit, conjunto_implicit = set(args['dataframe_to_analitical'].index.values), \
+        set(args['dataframe_to_explicit'].index.values), set(args['dataframe_to_implicit'].index.values)
+
+    equal_index_explicit = conjunto_analitical & conjunto_explicit
+    equal_index_implicit = conjunto_analitical & conjunto_implicit
+
+    dict_erro_explicit = {t: .0 for t in time}
+    for key, values in dict_erro_explicit.items():
+        suma = 0
+        for index in equal_index_explicit:
+            suma += ((args['dataframe_to_analitical'].loc[index, key] - args['dataframe_to_explicit'].loc[index, key])/
+                     args['dataframe_to_analitical'].loc[index, key])**2
+        dict_erro_explicit[key] = np.sqrt((1/dataclass.n_cells_explicit) * suma)
+
     return []
 
 
@@ -95,7 +119,7 @@ def create_mesh(well_class: object, time_values: np.ndarray, method: str, n_cell
         sys.exit()
 
     if n_cells != 0 and deltax != 0:
-        print(f'Error!!! Both parameters were set non-zero. You must set at least you of then different from zero.'
+        print(f'Error!!! Both parameters were set non-zero. You must set at least one of then different from zero.'
               f'Or you can set just one of then.')
 
     if n_cells == 0 and deltax == 0:
