@@ -1,40 +1,23 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation
 
-# Crie um DataFrame de exemplo
-data = {
-    'coluna1': [1, 2, 3, 4, 5],
-    'coluna2': [2, 3, 4, 5, 6],
-    'coluna3': [3, 4, 5, 6, 7]
-}
-df = pd.DataFrame(data)
+# Criando os dados para as planilhas
+data1 = {'Nome': ['Alice', 'Bob', 'Charlie'],
+         'Idade': [25, 30, 35]}
+data2 = {'Produto': ['Maçã', 'Banana', 'Laranja'],
+         'Quantidade': [10, 20, 15]}
 
-# Crie a figura e o eixo
-fig, ax = plt.subplots()
+# Criando um DataFrame para cada conjunto de dados
+df1 = pd.DataFrame(data1)
+df2 = pd.DataFrame(data2)
 
-# Inicialize o gráfico vazio
-lines = [ax.plot([], [], label=coluna)[0] for coluna in df.columns]
+# Criando um objeto ExcelWriter
+writer = pd.ExcelWriter('dados.xlsx', engine='xlsxwriter')
 
-# Defina a função de inicialização
-def init():
-    for line in lines:
-        line.set_data([], [])
-    ax.set_xlim(0, len(df.index) - 1)
-    ax.set_ylim(df.min().min(), df.max().max())
-    ax.legend()
-    return lines
+# Escrevendo os DataFrames em planilhas diferentes
+df1.to_excel(writer, sheet_name='Pessoas', index=False)
+df2.to_excel(writer, sheet_name='Produtos', index=False)
 
-# Defina a função de animação
-def animate(i):
-    for line, coluna in zip(lines, df.columns):
-        line.set_data(df.index[:i+1], df[coluna][:i+1])
-    return lines
+# Salvando o arquivo Excel
+writer.save()
 
-# Crie a animação
-ani = FuncAnimation(fig, animate, frames=len(df), init_func=init, blit=True)
-
-# Salve a animação em um arquivo MP4 usando o escritor de filmes ffmpeg
-ani.save('animacao.gif', fps=2, writer='ffmpeg')
-
-plt.show()
+print("Arquivo Excel criado com sucesso!")

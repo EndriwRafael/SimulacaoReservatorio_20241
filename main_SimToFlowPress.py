@@ -32,7 +32,7 @@ case = Case.FlowPressureBoundaries(initial_press=pressure_initial, well_press=pr
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
 # estejam incoerentes, o código retornar um erro avisando que o critério de convergência não foi respeitado!
 t_explicit = np.linspace(start=0, stop=100, num=401)
-t_analitical, t_implicit = np.linspace(start=0, stop=100, num=11), np.linspace(start=0, stop=100, num=11)
+t_analitical, t_implicit = np.linspace(start=0, stop=100, num=11), np.linspace(start=0, stop=100, num=111)
 Functions.create_mesh(well_class=case, n_cells=0, time_values=t_analitical, deltax=0.1, method='Analitical')
 Functions.create_mesh(well_class=case, n_cells=0, time_values=t_explicit, deltax=0.5, method='Explicit')
 Functions.create_mesh(well_class=case, n_cells=0, time_values=t_implicit, deltax=0.1, method='Implicit')

@@ -92,9 +92,17 @@ def calc_erro(root: str, dataclass: object, time: list):
     for key, values in dict_erro_explicit.items():
         suma = 0
         for index in equal_index_explicit:
-            suma += ((args['dataframe_to_analitical'].loc[index, key] - args['dataframe_to_explicit'].loc[index, key])/
-                     args['dataframe_to_analitical'].loc[index, key])**2
+            suma += (abs(args['dataframe_to_analitical'].loc[index, key] - args['dataframe_to_explicit'].loc[index, key]) /
+                     args['dataframe_to_analitical'].loc[index, key])
         dict_erro_explicit[key] = np.sqrt((1/dataclass.n_cells_explicit) * suma)
+
+    dict_erro_implicit = {t: .0 for t in time}
+    for key, values in dict_erro_implicit.items():
+        suma = 0
+        for index in equal_index_implicit:
+            suma += (abs(args['dataframe_to_analitical'].loc[index, key] - args['dataframe_to_implicit'].loc[index, key]) /
+                     args['dataframe_to_analitical'].loc[index, key])
+        dict_erro_implicit[key] = np.sqrt((1 / dataclass.n_cells_implicit) * suma)
 
     return []
 
