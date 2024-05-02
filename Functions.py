@@ -31,7 +31,7 @@ def plot_graphs_compare(root: str, dataclass: object, time: np.ndarray):
     explicit_solution = dataclass.dataframe_to_explicit
     implicit_solution = dataclass.dataframe_to_implicit
 
-    conjunto1, conjunto2 = set(explicit_solution.index.values), set(implicit_solution.index.values)
+    # conjunto1, conjunto2 = set(explicit_solution.index.values), set(implicit_solution.index.values)
 
     color_list = []
     fig, ax = plt.subplots()
@@ -75,7 +75,7 @@ def plot_animation_compare(root: str, dataclass: object, time: np.ndarray):
     :return: Plot and save the comparision animation.
     """
 
-    args = {atributo: valor for atributo, valor in dataclass.__dict__.items() if type(valor) == Df}
+    args = {atributo: valor for atributo, valor in dataclass.__dict__.items() if Df == type(valor)}
     limx, limy = [min(dataclass.dataframe_to_explicit.index), max(dataclass.dataframe_to_explicit.index)], \
         [dataclass.well_pressure, dataclass.initial_pressure]
 
@@ -83,7 +83,7 @@ def plot_animation_compare(root: str, dataclass: object, time: np.ndarray):
 
 
 def calc_erro(root: str, dataclass: object, time: list):
-    args = {atributo: valor for atributo, valor in dataclass.__dict__.items() if type(valor) == Df}
+    args = {atributo: valor for atributo, valor in dataclass.__dict__.items() if Df == type(valor)}  # type(valor) == Df
     conjunto_analitical, conjunto_explicit, conjunto_implicit = set(args['dataframe_to_analitical'].index.values), \
         set(args['dataframe_to_explicit'].index.values), set(args['dataframe_to_implicit'].index.values)
 
@@ -94,7 +94,8 @@ def calc_erro(root: str, dataclass: object, time: list):
     for key, values in dict_erro_explicit.items():
         suma = 0
         for index in equal_index_explicit:
-            suma += (abs(args['dataframe_to_analitical'].loc[index, key] - args['dataframe_to_explicit'].loc[index, key]) /
+            suma += (abs(args['dataframe_to_analitical'].loc[index, key] -
+                         args['dataframe_to_explicit'].loc[index, key]) /
                      args['dataframe_to_analitical'].loc[index, key])
         dict_erro_explicit[key] = np.sqrt((1/dataclass.n_cells_explicit) * suma)
 
@@ -102,7 +103,8 @@ def calc_erro(root: str, dataclass: object, time: list):
     for key, values in dict_erro_implicit.items():
         suma = 0
         for index in equal_index_implicit:
-            suma += (abs(args['dataframe_to_analitical'].loc[index, key] - args['dataframe_to_implicit'].loc[index, key]) /
+            suma += (abs(args['dataframe_to_analitical'].loc[index, key] -
+                         args['dataframe_to_implicit'].loc[index, key]) /
                      args['dataframe_to_analitical'].loc[index, key])
         dict_erro_implicit[key] = np.sqrt((1 / dataclass.n_cells_implicit) * suma)
 
