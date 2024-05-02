@@ -5,6 +5,8 @@ import random as rm
 from matplotlib.lines import Line2D
 import sys
 import Objects_Cases as ObjC
+import Object_Case
+import MeshGrid
 
 
 def set_color(list_color: list):
@@ -179,6 +181,49 @@ def create_mesh(well_class: object, time_values: np.ndarray, method: str, n_cell
         well_class.deltax_implicit = deltax
 
 
+def create_mesh_1d(time_values: np.ndarray, n_cells: int, wellclass: object, method: str) -> tuple:
+    """
+    Function to generate the grid for simulating pressure field. You should pass the value of cells that you wish your
+    grid to have.
+
+    :param time_values:
+    :param method:
+    :param wellclass:
+    :param n_cells: Number of cells that you wish to divide your grid. Must be an integer value.
+    :return: The mesh dict of your problem with the internal points and the two contour points!
+    """
+    if type(n_cells) is not int:
+        print(f'Error!!! The parameter "n_cells" must be set as an integer value. Type passed: {type(n_cells)}.')
+        sys.exit()
+
+    deltax = wellclass.res_length / n_cells
+    initial_point = deltax / 2
+    final_point = wellclass.res_length - deltax / 2
+    x_array = np.linspace(initial_point, final_point, n_cells)  # internal points of the grid
+    x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
+    x_array = np.append(x_array, int(wellclass.res_length))  # insert the final contour point
+    x_array = [round(i, ndigits=3) for i in x_array]
+    grid = {i: x_array[i] for i in range(len(x_array))}
+
+    delta_t = time_values[1] - time_values[0]
+    if method == 'Explicit':
+        # r_x_explicit = delta_t / (deltax ** 2)
+        wellclass.rx_explicit = delta_t / (deltax ** 2)
+        # well_class.deltax_explicit = deltax
+        if wellclass.rx_explicit * wellclass.eta >= 0.25:
+            print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
+            print(f'rx = {wellclass.r_x_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
+                  f'{wellclass.r_x_explicit * wellclass.eta}')
+            sys.exit()
+        else:
+            pass
+    else:
+        wellclass.rx_implicit = delta_t / (deltax ** 2)
+        # wellclass.deltax_implicit = deltax
+
+    return grid, deltax
+
+
 def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:
     """
     Function that will create the dataframe table for the pressure field with relative mesh grid created.
@@ -232,3 +277,44 @@ def create_pressurecoeficients_flowboundaries(n_cells: int, param_values: dict):
     constant_matrix[-1] = param_values['fn']
 
     return field_matrix,  constant_matrix
+
+
+def get_object_case(well_condiction: str, external_condiction: str):
+    """
+
+    :param well_condiction: Well boundary condiction. Must be Pressure (P) or Flow (F).
+    :param external_condiction: External boundary condiction. Must be Pressure (P) or Flow (F).
+    :return: The class corresponding to the simulation condictions.
+    """
+    if well_condiction != 'P' and well_condiction != 'F':
+        print('Error!!! well boundary must be P (Pressure) or F (Flow).')
+        sys.exit()
+
+    if external_condiction != 'P' and external_condiction != 'F':
+        print('Error!!! external boundary must be P (Pressure) or F (Flow).')
+        sys.exit()
+
+    if well_condiction.upper() == 'P' and external_condiction.upper() == 'P':
+        return Object_Case.PressureBoundaries()
+    elif well_condiction.upper() == 'F' and external_condiction.upper() == 'P':
+        return Object_Case.FlowPressureBoundaries()
+    else:
+        return Object_Case.FlowBoundaries()
+
+
+def get_object_mesh(flow_type: str):
+    """
+
+    :param flow_type:
+    :return:
+    """
+    if flow_type != '1D' and flow_type != '2D' and flow_type != '3D':
+        print("Error! The flow dinamics must be 1D, 2D or 3D.")
+        sys.exit()
+
+    if flow_type == '1D':
+        return MeshGrid.OneDimensionalFlowMesh
+    elif flow_type == '2D':
+        return MeshGrid.TwoDimensionalFlowMesh
+    else:
+        return MeshGrid.ThreeDimensionalFlowMesh

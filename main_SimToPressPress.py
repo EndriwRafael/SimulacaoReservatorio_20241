@@ -23,8 +23,8 @@ wellflow = 0.01
 
 ''' Inicializando simuladores Pressão - Pressão -------------------------------------------------------------------- '''
 case = Case.PressureBoundaries(initialpressure=pressure_initial, wellpressure=pressure_well,
-                                        reserlength=length_reser, permeability=permeabi, viscosity=viscosi,
-                                        porosity=porosit, compresibility=compressibi)
+                               reserlength=length_reser, permeability=permeabi, viscosity=viscosi,
+                               porosity=porosit, compresibility=compressibi)
 
 ''' Discretização da malha ----------------------------------------------------------------------------------------- '''
 # Valores de discretização devem ser conferidos antes de rodar, por conta do critério de convergência. Caso os valores
