@@ -2,7 +2,7 @@
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Neumann nas duas Extremidades
 """
 import Objects_Cases as Case
-from Simuladores_LinearFlow import Numerical_EXPLICIT as NsimExp
+from Simuladores_1DFlow import Numerical_EXPLICIT as NsimExp
 import Functions
 import numpy as np
 import pandas as pd

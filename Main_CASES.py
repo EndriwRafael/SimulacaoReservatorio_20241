@@ -27,13 +27,18 @@ n_cells_explicit = 40
 n_cells_implicit = 100
 
 ''' Inicializando simulador ---------------------------------------------------------------------------------------- '''
-simulation = Functions.get_object_case(well_condiction=well_boundary, external_condiction=external_boundary)
-simulation.set_case_parameters(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
-                               res_thick=thickness, porosity=porosit, viscosity=viscosi,
-                               compressibility=compressibi, permeability=permeabi,
-                               res_len=length_reser)
+case = Functions.get_object_case(well_condiction=well_boundary, external_condiction=external_boundary)
+case.set_case_parameters(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
+                         res_thick=thickness, porosity=porosit, viscosity=viscosi,
+                         compressibility=compressibi, permeability=permeabi,
+                         res_len=length_reser)
 
 ''' Criando malhas ------------------------------------------------------------------------------------------------- '''
-mesh = Functions.get_object_mesh(flow_type=flux)
-mesh.set_mesh_grid(time_explicit=time_explicit, time_implicit=time_implicit, n_cells_explicit=n_cells_explicit,
-                   n_cells_implicit=n_cells_implicit, wellclass=simulation)
+simulation = Functions.get_object_mesh(flow_type=flux, wellobject=case)
+simulation.set_mesh_grid(time_explicit=time_explicit, time_implicit=time_implicit, n_cells_explicit=n_cells_explicit,
+                         n_cells_implicit=n_cells_implicit)  # , wellclass=case
+
+''' Iniciando simulação -------------------------------------------------------------------------------------------- '''
+simulation.simulate()
+
+print(case)

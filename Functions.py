@@ -6,7 +6,7 @@ from matplotlib.lines import Line2D
 import sys
 import Objects_Cases as ObjC
 import Object_Case
-import MeshGrid
+import Object_Simulation
 
 
 def set_color(list_color: list):
@@ -304,7 +304,7 @@ def get_object_case(well_condiction: str, external_condiction: str):
         return Object_Case.FlowBoundaries()
 
 
-def get_object_mesh(flow_type: str):
+def get_object_mesh(flow_type: str, wellobject: object):
     """
 
     :param flow_type:
@@ -315,8 +315,8 @@ def get_object_mesh(flow_type: str):
         sys.exit()
 
     if flow_type == '1D':
-        return MeshGrid.OneDimensionalFlowMesh
+        return Object_Simulation.OneDimensionalFlowMesh(wellcase=wellobject)
     elif flow_type == '2D':
-        return MeshGrid.TwoDimensionalFlowMesh
+        return Object_Simulation.TwoDimensionalFlowMesh
     else:
-        return MeshGrid.ThreeDimensionalFlowMesh
+        return Object_Simulation.ThreeDimensionalFlowMesh
