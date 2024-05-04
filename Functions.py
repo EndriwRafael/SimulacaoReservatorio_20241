@@ -209,9 +209,8 @@ def create_mesh_1d(time_values: np.ndarray, n_cells: int, wellclass: object, met
 
     delta_t = time_values[1] - time_values[0]
     if method == 'Explicit':
-        # r_x_explicit = delta_t / (deltax ** 2)
         wellclass.rx_explicit = delta_t / (deltax ** 2)
-        # well_class.deltax_explicit = deltax
+        wellclass.time_explicit = time_values
         if wellclass.rx_explicit * wellclass.eta >= 0.25:
             print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
             print(f'rx = {wellclass.r_x_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
@@ -221,7 +220,7 @@ def create_mesh_1d(time_values: np.ndarray, n_cells: int, wellclass: object, met
             pass
     else:
         wellclass.rx_implicit = delta_t / (deltax ** 2)
-        # wellclass.deltax_implicit = deltax
+        wellclass.time_implicit = time_values
 
     return grid, deltax
 
@@ -307,6 +306,7 @@ def get_object_case(well_condiction: str, external_condiction: str):
 def get_object_mesh(flow_type: str, wellobject: object):
     """
 
+    :param wellobject:
     :param flow_type:
     :return:
     """

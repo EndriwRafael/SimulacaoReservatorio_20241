@@ -16,9 +16,11 @@ from scipy.special import erfc
 
 
 class PressureBoundaries:
-    def __init__(self, t: np.ndarray, well_class: object):
+    def __init__(self, t: np.ndarray, well_class: object, name_file: str):
+        self.dataframe = None
         self.time = t
         self.well_class = well_class
+        self.name = name_file
         self.start_simulate()
 
     def calc_sum(self, t_value, point_value):
@@ -50,8 +52,8 @@ class PressureBoundaries:
         return sum_value
 
     def plot_result(self, data: Df):
-        if not os.path.isdir(f'../results/Simulador_Pressao-Pressao'):
-            os.makedirs(f'../results/Simulador_Pressao-Pressao')
+        if not os.path.isdir('results/OneDimensionalFlow/PressurePressure_Simulator'):
+            os.makedirs('results/OneDimensionalFlow/PressurePressure_Simulator')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.analitical_mesh[key], ndigits=3)
@@ -71,11 +73,14 @@ class PressureBoundaries:
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.png')
+        # plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.png')
+        plt.savefig(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.xlsx')
-        self.well_class.dataframe_to_analitical = data
+        # data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.xlsx')
+        data.to_excel(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.xlsx')
+        # self.well_class.dataframe_to_analitical = data
+        self.dataframe = data
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,

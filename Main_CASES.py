@@ -24,7 +24,7 @@ flux = '1D'
 time_explicit = np.linspace(start=0, stop=100, num=401)
 time_implicit = np.linspace(start=0, stop=100, num=11)
 n_cells_explicit = 40
-n_cells_implicit = 100
+n_cells_implicit = 1000
 
 ''' Inicializando simulador ---------------------------------------------------------------------------------------- '''
 case = Functions.get_object_case(well_condiction=well_boundary, external_condiction=external_boundary)
@@ -41,4 +41,5 @@ simulation.set_mesh_grid(time_explicit=time_explicit, time_implicit=time_implici
 ''' Iniciando simulação -------------------------------------------------------------------------------------------- '''
 simulation.simulate()
 
-print(case)
+''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
+case.compute()

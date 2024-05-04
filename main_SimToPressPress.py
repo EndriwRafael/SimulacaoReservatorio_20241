@@ -2,9 +2,9 @@
 Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Dirichlet nas duas Extremidades
 """
 import Objects_Cases as Case
-from Simuladores_1DFlow import Analitical as Asim
-from Simuladores_1DFlow import Numerical_EXPLICIT as NsimExp
-from Simuladores_1DFlow import Numerical_IMPLICIT as NsimEmp
+from Simuladores import Analitical_OneDimensional as Asim
+from Simuladores import Explicit_OneDimensional as NsimExp
+from Simuladores import Implicit_OneDimensional as NsimEmp
 import Functions
 import numpy as np
 import pandas as pd

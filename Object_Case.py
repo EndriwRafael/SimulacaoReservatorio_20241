@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from Simuladores_1DFlow import Analitical, Numerical_EXPLICIT, Numerical_EXPLICIT
+from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Explicit_OneDimensional
 
 
 class ObjectCase(ABC):

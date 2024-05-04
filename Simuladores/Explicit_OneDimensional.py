@@ -19,14 +19,16 @@ import time
 
 
 class PressureBoundaries:
-    def __init__(self, t: np.ndarray, well_class: object):
+    def __init__(self, t: np.ndarray, well_class: object, name_file: str):
+        self.dataframe = None
         self.time = t
         self.well_class = well_class
+        self.name = name_file
         self.start_simulate()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(f'../results/Simulador_Pressao-Pressao'):
-            os.makedirs(f'../results/Simulador_Pressao-Pressao')
+        if not os.path.isdir(f'results/OneDimensionalFlow/PressurePressure_Simulator'):
+            os.makedirs(f'results/OneDimensionalFlow/PressurePressure_Simulator')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.explicit_mesh[key], ndigits=3)
@@ -42,15 +44,15 @@ class PressureBoundaries:
         plt.ticklabel_format(axis='y', style='plain')
         plt.xlabel('Comprimento (m)')
         plt.ylabel('Pressão (psia)')
-        plt.title('Pressão-Pressão [Numérico]')
+        plt.title('Pressão-Pressão [Explicito]')
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_numerico_Explicit.png')
+        plt.savefig(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_numerico_Explicit.xlsx')
-        self.well_class.dataframe_to_explicit = data
+        data.to_excel(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.xlsx')
+        self.dataframe = data
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
