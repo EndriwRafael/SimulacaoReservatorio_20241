@@ -4,7 +4,6 @@ import numpy as np
 import random as rm
 from matplotlib.lines import Line2D
 import sys
-import Objects_Cases as ObjC
 import Object_Case
 import Object_Simulation
 from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Implicit_OneDimensional

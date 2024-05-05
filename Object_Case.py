@@ -17,6 +17,7 @@ class ObjectCase(ABC):
         self.res_length = None
         self.well_pressure = None
         self.initial_pressure = None
+        self.results = None
 
     def calc(self) -> tuple[float, float]:
         delta_pressure = self.initial_pressure - self.well_pressure
@@ -54,6 +55,9 @@ class PressureBoundaries(ObjectCase):
         self.condiction = 'PP'
 
     def compute(self):
+        results = self.results
+        extract_columns = results.implicit.columns
+        x = results
         pass
 
 
