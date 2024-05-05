@@ -13,15 +13,29 @@ import pandas as pd
 from pandas import DataFrame as Df
 import os
 from scipy.special import erfc
+from abc import ABC, abstractmethod
 
 
-class PressureBoundaries:
-    def __init__(self, t: np.ndarray, well_class: object, name_file: str):
+class Analitical(ABC):
+    def __init__(self):
         self.dataframe = None
+        self.time = None
+        self.well_class = None
+        self.name = None
+
+    def set_parameters(self, t: np.ndarray, well_class: object, name_file: str):
         self.time = t
         self.well_class = well_class
         self.name = name_file
-        self.start_simulate()
+
+    @abstractmethod
+    def start_simulate(self):
+        pass
+
+
+class PressureBoundaries(Analitical):
+    def __init__(self):
+        super().__init__()
 
     def calc_sum(self, t_value, point_value):
         """
@@ -60,22 +74,25 @@ class PressureBoundaries:
                                for key in self.well_class.analitical_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
-        time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
+        if self.name == 'Analitical':
+            time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
 
-        for column in data.columns:
-            if column in time_to_plot:
-                plt.plot(data.index, data[column], label=f't = {int(column)}h')
+            for column in data.columns:
+                if column in time_to_plot:
+                    plt.plot(data.index, data[column], label=f't = {int(column)}h')
 
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.xlabel('Comprimento (m)')
-        plt.ylabel('Pressão (psia)')
-        plt.title('Pressão-Pressão [Analítico]')
-        plt.legend(framealpha=1)
-        plt.grid()
-        plt.tight_layout()
-        # plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.png')
-        plt.savefig(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.png')
-        plt.close()
+            plt.ticklabel_format(axis='y', style='plain')
+            plt.xlabel('Comprimento (m)')
+            plt.ylabel('Pressão (psia)')
+            plt.title(f'Pressão-Pressão [{self.name}]')
+            plt.legend(framealpha=1)
+            plt.grid()
+            plt.tight_layout()
+            # plt.savefig(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.png')
+            plt.savefig(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.png')
+            plt.close()
+        else:
+            pass
 
         # data.to_excel(f'results\\Simulador_Pressao-Pressao\\pressao-pressao_analitico.xlsx')
         data.to_excel(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.xlsx')
@@ -105,40 +122,41 @@ class PressureBoundaries:
         self.plot_result(data=pressure_df)
 
 
-class WellFlowAndPressureBoundaries:
-    def __init__(self, t: np.ndarray, well_class: object):
-        self.pressure = None
-        self.time = t
-        self.well_class = well_class
-        self.start_simulate()
+class WellFlowAndPressureBoundaries(Analitical):
+    def __init__(self):
+        super().__init__()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(f'../results/Simulador_Fluxo-Pressao'):
-            os.makedirs(f'../results/Simulador_Fluxo-Pressao')
+        if not os.path.isdir(f'results/OneDimensionalFlow/FlowPressure_Simulator'):
+            os.makedirs(f'results/OneDimensionalFlow/FlowPressure_Simulator')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.analitical_mesh[key], ndigits=3)
                                for key in self.well_class.analitical_mesh.keys()]
         data = data.set_index(pd.Index(index_for_dataframe, name='x'))
 
-        time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
+        if self.name == 'Analitical':
+            time_to_plot = np.linspace(self.time[0], self.time[-1], 11)
 
-        for column in data.columns:
-            if column in time_to_plot:
-                plt.plot(data.index, data[column], label=f't = {int(column)}h')
+            for column in data.columns:
+                if column in time_to_plot:
+                    plt.plot(data.index, data[column], label=f't = {int(column)}h')
 
-        plt.ticklabel_format(axis='y', style='plain')
-        plt.xlabel('Comprimento (m)')
-        plt.ylabel('Pressão (psia)')
-        plt.title('Fluxo-Pressão [Analítico]')
-        plt.legend(framealpha=1)
-        plt.grid()
-        plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico.png')
-        plt.close()
+            plt.ticklabel_format(axis='y', style='plain')
+            plt.xlabel('Comprimento (m)')
+            plt.ylabel('Pressão (psia)')
+            plt.title(f'Fluxo-Pressão [{self.name}]')
+            plt.legend(framealpha=1)
+            plt.grid()
+            plt.tight_layout()
+            plt.savefig(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.png')
+            plt.close()
+        else:
+            pass
 
-        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_analitico.xlsx')
-        self.well_class.dataframe_to_analitical = data
+        data.to_excel(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.xlsx')
+        # self.well_class.dataframe_to_analitical = data
+        self.dataframe = data
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,

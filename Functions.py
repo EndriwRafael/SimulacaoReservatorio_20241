@@ -7,6 +7,7 @@ import sys
 import Objects_Cases as ObjC
 import Object_Case
 import Object_Simulation
+from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Implicit_OneDimensional
 
 
 def set_color(list_color: list):
@@ -320,3 +321,16 @@ def get_object_mesh(flow_type: str, wellobject: object):
         return Object_Simulation.TwoDimensionalFlowMesh
     else:
         return Object_Simulation.ThreeDimensionalFlowMesh
+
+
+def set_object_simulation(boundaries: str):
+    if boundaries == 'PP':
+        return (Analitical_OneDimensional.PressureBoundaries(), Explicit_OneDimensional.PressureBoundaries(),
+                Implicit_OneDimensional.PressureBoundaries())
+    elif boundaries == 'FP':
+        return (Analitical_OneDimensional.WellFlowAndPressureBoundaries(),
+                Explicit_OneDimensional.WellFlowAndPressureBoundaries(),
+                Implicit_OneDimensional.WellFlowAndPressureBoundaries())
+    else:
+        print('Error!!! The flow bondaries simulator was not implemented yet.')
+        sys.exit()

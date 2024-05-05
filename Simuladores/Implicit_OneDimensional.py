@@ -17,15 +17,29 @@ from pandas import DataFrame as Df
 import os
 from scipy.linalg import solve
 import time
+from abc import ABC, abstractmethod
 
 
-class PressureBoundaries:
-    def __init__(self, t: np.ndarray, well_class: object, name_file: str):
+class Implicit(ABC):
+    def __init__(self):
         self.dataframe = None
+        self.time = None
+        self.well_class = None
+        self.name = None
+
+    def set_parameters(self, t: np.ndarray, well_class: object, name_file: str):
         self.time = t
         self.well_class = well_class
         self.name = name_file
-        self.start_simulate()
+
+    @abstractmethod
+    def start_simulate(self):
+        pass
+
+
+class PressureBoundaries(Implicit):
+    def __init__(self):
+        super().__init__()
 
     def plot_results(self, data: Df):
         if not os.path.isdir(f'results/OneDimensionalFlow/PressurePressure_Simulator'):
@@ -98,15 +112,13 @@ class PressureBoundaries:
         self.plot_results(data=pressure_df)
 
 
-class WellFlowAndPressureBoundaries:
-    def __init__(self, t: np.ndarray, well_class: object):
-        self.time = t
-        self.well_class = well_class
-        self.start_simulate()
+class WellFlowAndPressureBoundaries(Implicit):
+    def __init__(self):
+        super().__init__()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(f'../results/Simulador_Fluxo-Pressao'):
-            os.makedirs(f'../results/Simulador_Fluxo-Pressao')
+        if not os.path.isdir(f'results/OneDimensionalFlow/FlowPressure_Simulator'):
+            os.makedirs(f'results/OneDimensionalFlow/FlowPressure_Simulator')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3)
@@ -122,15 +134,16 @@ class WellFlowAndPressureBoundaries:
         plt.ticklabel_format(axis='y', style='plain')
         plt.xlabel('Comprimento (m)')
         plt.ylabel('Pressão (psia)')
-        plt.title('Flow-Pressão [Numérico - Implicito]')
+        plt.title('Flow-Pressão [Implicito]')
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico_Implicit.png')
+        plt.savefig(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.png')
         plt.close()
 
-        data.to_excel(f'results\\Simulador_Fluxo-Pressao\\fluxo-pressao_numerico_Implicit.xlsx')
-        self.well_class.dataframe_to_implicit = data
+        data.to_excel(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.xlsx')
+        # self.well_class.dataframe_to_implicit = data
+        self.dataframe = data
 
     def start_simulate(self):
         pressure_df, col_idx, row_idx = Functions.create_dataframe(time=self.time,
@@ -144,7 +157,7 @@ class WellFlowAndPressureBoundaries:
             'e': 1 + (4 * self.well_class.rx_implicit * self.well_class.eta),
             'f1': - (self.well_class.rx_implicit * self.well_class.eta * self.well_class.well_flow *
                      self.well_class.viscosity *
-                     self.well_class.deltax_implicit) / (self.well_class.permeability * self.well_class.res_area),
+                     self.well_class.dx_implicit) / (self.well_class.permeability * self.well_class.res_area),
             'fn': (8 / 3) * self.well_class.rx_implicit * self.well_class.eta * self.well_class.initial_pressure
         }
 
@@ -169,7 +182,7 @@ class WellFlowAndPressureBoundaries:
                 # p1_t = pressure_df.loc[1, last_col]  # pressão no ponto 1, tempo anterior.
                 value_to_add = vetor_next_pressure[0] - (((self.well_class.well_flow * self.well_class.viscosity) /
                                                           (self.well_class.permeability * self.well_class.res_area)) *
-                                                         (self.well_class.deltax_implicit / 2))
+                                                         (self.well_class.dx_implicit / 2))
 
                 vetor_next_pressure = np.insert(vetor_next_pressure, 0, value_to_add)
                 vetor_next_pressure = np.append(vetor_next_pressure, self.well_class.initial_pressure)
