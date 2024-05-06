@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Explicit_OneDimensional
+import Functions
+import os
 
 
 class ObjectCase(ABC):
@@ -55,10 +57,30 @@ class PressureBoundaries(ObjectCase):
         self.condiction = 'PP'
 
     def compute(self):
+        if not os.path.isdir('results/OneDimensionalFlow/PressurePressure_Simulator'):
+            os.makedirs('results/OneDimensionalFlow/PressurePressure_Simulator')
+        # --------------------------------------------------------------------------------------------------------------
         results = self.results
-        extract_columns = results.implicit.columns
-        x = results
-        pass
+        extract_columns = [col for col in results.implicit.columns if col != 0.0]
+        # --------------------------------------------------------------------------------------------------------------
+        erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
+                                          columns=extract_columns, n_cell=results.ncell_explicit)
+        erro_implicit = Functions.fo_erro(data_analitical=results.analitical_implicit, data_method=results.implicit,
+                                          columns=extract_columns, n_cell=results.ncell_implicit)
+        # --------------------------------------------------------------------------------------------------------------
+        list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
+                         results.timeprocess_explicit, results.ncell_explicit]
+        for i in erro_explicit:
+            list_explicit.append(i)
+
+        list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
+                         results.timeprocess_implicit, results.ncell_implicit]
+        for i in erro_implicit:
+            list_implicit.append(i)
+        # --------------------------------------------------------------------------------------------------------------
+        data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
+                                                  columns=extract_columns)
+        data.to_excel('results/OneDimensionalFlow/PressurePressure_Simulator/Error_analysis.xlsx')
 
 
 class FlowPressureBoundaries(ObjectCase):
@@ -67,6 +89,30 @@ class FlowPressureBoundaries(ObjectCase):
         self.condiction = 'FP'
 
     def compute(self):
+        if not os.path.isdir('results/OneDimensionalFlow/FlowPressure_Simulator'):
+            os.makedirs('results/OneDimensionalFlow/FlowPressure_Simulator')
+        # --------------------------------------------------------------------------------------------------------------
+        results = self.results
+        extract_columns = [col for col in results.implicit.columns if col != 0.0]
+        # --------------------------------------------------------------------------------------------------------------
+        erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
+                                          columns=extract_columns, n_cell=results.ncell_explicit)
+        erro_implicit = Functions.fo_erro(data_analitical=results.analitical_implicit, data_method=results.implicit,
+                                          columns=extract_columns, n_cell=results.ncell_implicit)
+        # --------------------------------------------------------------------------------------------------------------
+        list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
+                         results.timeprocess_explicit, results.ncell_explicit]
+        for i in erro_explicit:
+            list_explicit.append(i)
+
+        list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
+                         results.timeprocess_implicit, results.ncell_implicit]
+        for i in erro_implicit:
+            list_implicit.append(i)
+        # --------------------------------------------------------------------------------------------------------------
+        data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
+                                                  columns=extract_columns)
+        data.to_excel('results/OneDimensionalFlow/FlowPressure_Simulator/Error_analysis.xlsx')
         pass
 
 
@@ -76,4 +122,28 @@ class FlowBoundaries(ObjectCase):
         self.condiction = 'FF'
 
     def compute(self):
+        if not os.path.isdir('results/OneDimensionalFlow/FlowFlow_Simulator'):
+            os.makedirs('results/OneDimensionalFlow/FlowFlow_Simulator')
+        # --------------------------------------------------------------------------------------------------------------
+        results = self.results
+        extract_columns = [col for col in results.implicit.columns if col != 0.0]
+        # --------------------------------------------------------------------------------------------------------------
+        erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
+                                          columns=extract_columns, n_cell=results.ncell_explicit)
+        erro_implicit = Functions.fo_erro(data_analitical=results.analitical_implicit, data_method=results.implicit,
+                                          columns=extract_columns, n_cell=results.ncell_implicit)
+        # --------------------------------------------------------------------------------------------------------------
+        list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
+                         results.timeprocess_explicit, results.ncell_explicit]
+        for i in erro_explicit:
+            list_explicit.append(i)
+
+        list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
+                         results.timeprocess_implicit, results.ncell_implicit]
+        for i in erro_implicit:
+            list_implicit.append(i)
+        # --------------------------------------------------------------------------------------------------------------
+        data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
+                                                  columns=extract_columns)
+        data.to_excel('results/OneDimensionalFlow/FlowFlow_Simulator/Error_analysis.xlsx')
         pass

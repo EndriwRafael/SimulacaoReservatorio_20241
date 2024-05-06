@@ -18,7 +18,7 @@ wellflow = 0.01
 injectivityflow = 0.01
 
 ''' Definindo condições de simulação ------------------------------------------------------------------------------- '''
-well_boundary = 'P'
+well_boundary = 'F'
 external_boundary = 'P'
 flux = '1D'
 time_explicit = np.linspace(start=0, stop=100, num=401)
