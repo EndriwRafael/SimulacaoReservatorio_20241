@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 from pandas import DataFrame as Df
 import numpy as np
 import random as rm
@@ -17,52 +18,39 @@ def set_color(list_color: list):
     return f'C{a}'
 
 
-def plot_graphs_compare(root: str, dataclass: object, time: np.ndarray):
-    """
-    Function to plot graphs from both methods (analitical and numerical) to compare curves.
-
-    :param root: Path that contains the results from methods to save the final graph. Must be string.
-    :param dataclass: Class object that contains the simulation results.
-    :param time: Array for times that will be plot on graph.
-    :return: Plot and save the comparision graph.
-    """
-
-    analitical_solution = dataclass.dataframe_to_analitical
-    explicit_solution = dataclass.dataframe_to_explicit
-    implicit_solution = dataclass.dataframe_to_implicit
-
-    # conjunto1, conjunto2 = set(explicit_solution.index.values), set(implicit_solution.index.values)
-
-    color_list = []
+def plot_graphs(dataclass: object, columns, root):
+    # ------------------------------------------------------------------------------------------------------------------
     fig, ax = plt.subplots()
-    for t in time:
+    # legend_elements = []
+    color_list = []
+    color_label = []
 
+    for col in columns:
         if len(color_list) == 10:
             color_list = []
-
         color_list.append(set_color(list_color=color_list))
 
-        # color: color_list[-1]
-        ax.plot(analitical_solution.index, analitical_solution[t], '-', color='black', label='_nolegend_', linewidth=1)
-        ax.scatter(explicit_solution.index, explicit_solution[t], marker='o', s=5,
-                   color='blue', label='_nolegend_')
-        ax.scatter(implicit_solution.index, implicit_solution[t], marker='^', s=2,
-                   color='red', label='_nolegend_')
+        ax.plot(dataclass.analitical.index, dataclass.analitical[col], color=color_list[-1])
+        ax.scatter(dataclass.explicit.index, dataclass.explicit[col], marker='o', s=5, color=color_list[-1],
+                   label='_nolegend_')
+        ax.scatter(dataclass.implicit.index, dataclass.implicit[col], marker='^', s=.5, color=color_list[-1],
+                   label='_nolegend_')
 
-    # Criação manual das entradas da legenda
-    legend_elements = [Line2D([0], [0], linestyle='-', color='black', label='Analítico'),
-                       Line2D([0], [0], marker='o', color='w', markerfacecolor='blue', markersize=10, label='Explicit'),
-                       Line2D([0], [0], marker='^', color='w', markerfacecolor='red', markersize=10, label='Implicit')]
+        # legend_elements.append(Line2D([0], [0], linestyle='-', color=color_list[-1], label=f'{col}'))
+        color_label.append(color_list[-1])
+
+    patches = [Patch(color=c, label=l) for c, l in zip(color_list, columns)]
 
     plt.ticklabel_format(axis='y', style='plain')
     plt.xlabel('Comprimento (m)')
     plt.ylabel('Pressão (psia)')
-    plt.title('Comparação das Curvas (Analítico e Numérico)')
-    ax.legend(framealpha=1, handles=legend_elements)
+    plt.title("Comparação das Curvas (Analítico '-' , Explicito 'o' e Implicito '^'")
+    ax.legend(framealpha=1, handles=patches)
     ax.grid()
     plt.tight_layout()
-    fig.savefig(f'{root}\\ComparacaoFinal.png')
+    fig.savefig(root)
     plt.close()
+    # ------------------------------------------------------------------------------------------------------------------
 
 
 def fo_erro(data_analitical: Df, data_method: Df, columns: list, n_cell: int):
