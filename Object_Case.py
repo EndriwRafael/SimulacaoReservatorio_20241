@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Explicit_OneDimensional
+import numpy as np
 import Functions
 import os
 
@@ -62,6 +62,7 @@ class PressureBoundaries(ObjectCase):
         # --------------------------------------------------------------------------------------------------------------
         results = self.results
         extract_columns = [col for col in results.implicit.columns if col != 0.0]
+
         # --------------------------------------------------------------------------------------------------------------
         erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
                                           columns=extract_columns, n_cell=results.ncell_explicit)
@@ -81,6 +82,8 @@ class PressureBoundaries(ObjectCase):
         data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
                                                   columns=extract_columns)
         data.to_excel('results/OneDimensionalFlow/PressurePressure_Simulator/Error_analysis.xlsx')
+        root_fig = 'results/OneDimensionalFlow/PressurePressure_Simulator/CompareAnalysis.png'
+        Functions.plot_graphs(dataclass=results, columns=[10, 50, 100], root=root_fig)
 
 
 class FlowPressureBoundaries(ObjectCase):
@@ -113,7 +116,8 @@ class FlowPressureBoundaries(ObjectCase):
         data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
                                                   columns=extract_columns)
         data.to_excel('results/OneDimensionalFlow/FlowPressure_Simulator/Error_analysis.xlsx')
-        pass
+        root_fig = 'results/OneDimensionalFlow/FlowPressure_Simulator/CompareAnalysis.png'
+        Functions.plot_graphs(dataclass=results, columns=[10, 50, 100], root=root_fig)
 
 
 class FlowBoundaries(ObjectCase):
