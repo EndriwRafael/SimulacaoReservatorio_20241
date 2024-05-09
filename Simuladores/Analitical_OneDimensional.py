@@ -83,7 +83,7 @@ class PressureBoundaries(Analitical):
 
             plt.ticklabel_format(axis='y', style='plain')
             plt.xlabel('Comprimento (m)')
-            plt.ylabel('Pressão (psia)')
+            plt.ylabel('Pressão (Pa)')
             plt.title(f'Pressão-Pressão [{self.name}]')
             plt.legend(framealpha=1)
             plt.grid()
@@ -144,7 +144,7 @@ class WellFlowAndPressureBoundaries(Analitical):
 
             plt.ticklabel_format(axis='y', style='plain')
             plt.xlabel('Comprimento (m)')
-            plt.ylabel('Pressão (psia)')
+            plt.ylabel('Pressão (Pa)')
             plt.title(f'Fluxo-Pressão [{self.name}]')
             plt.legend(framealpha=1)
             plt.grid()
