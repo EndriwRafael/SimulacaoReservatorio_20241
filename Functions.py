@@ -53,6 +53,10 @@ def plot_graphs(dataclass: object, columns, root):
     # ------------------------------------------------------------------------------------------------------------------
 
 
+def plot_animation_results(data: object):
+    pass
+
+
 def fo_erro(data_analitical: Df, data_method: Df, columns: list, n_cell: int):
     erro_list = []
     # for data in columns:
