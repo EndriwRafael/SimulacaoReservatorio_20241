@@ -22,7 +22,7 @@ well_boundary = 'F'
 external_boundary = 'P'
 flux = '1D'
 time_explicit = np.linspace(start=0, stop=100, num=401)
-time_implicit = np.linspace(start=0, stop=100, num=11)
+time_implicit = np.linspace(start=0, stop=100, num=101)
 n_cells_explicit = 40
 n_cells_implicit = 1000
 
