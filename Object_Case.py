@@ -81,9 +81,10 @@ class PressureBoundaries(ObjectCase):
         # --------------------------------------------------------------------------------------------------------------
         data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
                                                   columns=extract_columns)
-        data.to_excel('results/OneDimensionalFlow/PressurePressure_Simulator/Error_analysis.xlsx')
-        root_fig = 'results/OneDimensionalFlow/PressurePressure_Simulator/CompareAnalysis.png'
+        data.to_excel(r'results\OneDimensionalFlow\PressurePressure_Simulator\Error_analysis.xlsx')
+        root_fig = r'results\OneDimensionalFlow\PressurePressure_Simulator'
         Functions.plot_graphs(dataclass=results, columns=[10, 50, 100], root=root_fig)
+        Functions.plot_animation_results(data=results, root=root_fig)
 
 
 class FlowPressureBoundaries(ObjectCase):
@@ -115,9 +116,10 @@ class FlowPressureBoundaries(ObjectCase):
         # --------------------------------------------------------------------------------------------------------------
         data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
                                                   columns=extract_columns)
-        data.to_excel('results/OneDimensionalFlow/FlowPressure_Simulator/Error_analysis.xlsx')
-        root_fig = 'results/OneDimensionalFlow/FlowPressure_Simulator/CompareAnalysis.png'
+        data.to_excel(r'results\OneDimensionalFlow\FlowPressure_Simulator\Error_analysis.xlsx')
+        root_fig = r'results\OneDimensionalFlow\FlowPressure_Simulator'
         Functions.plot_graphs(dataclass=results, columns=[10, 50, 100], root=root_fig)
+        Functions.plot_animation_results(data=results, root=root_fig)
 
 
 class FlowBoundaries(ObjectCase):
