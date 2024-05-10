@@ -64,19 +64,25 @@ class PressureBoundaries(ObjectCase):
         extract_columns = [col for col in results.implicit.columns if col != 0.0]
 
         # --------------------------------------------------------------------------------------------------------------
-        erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
-                                          columns=extract_columns, n_cell=results.ncell_explicit)
-        erro_implicit = Functions.fo_erro(data_analitical=results.analitical_implicit, data_method=results.implicit,
-                                          columns=extract_columns, n_cell=results.ncell_implicit)
+        erro_explicit_dx, erro_explicit_dt = Functions.fo_erro(data_analitical=results.analitical_explicit,
+                                                               data_method=results.explicit,
+                                                               columns=extract_columns, n_cell=results.ncell_explicit)
+        erro_implicit_dx, erro_implicit_dt = Functions.fo_erro(data_analitical=results.analitical_implicit,
+                                                               data_method=results.implicit,
+                                                               columns=extract_columns, n_cell=results.ncell_implicit)
         # --------------------------------------------------------------------------------------------------------------
         list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
-                         results.timeprocess_explicit, results.ncell_explicit]
-        for i in erro_explicit:
+                         results.ncell_explicit, results.timeprocess_explicit]
+        for i in erro_explicit_dx:
+            list_explicit.append(i)
+        for i in erro_explicit_dt:
             list_explicit.append(i)
 
         list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
-                         results.timeprocess_implicit, results.ncell_implicit]
-        for i in erro_implicit:
+                         results.ncell_implicit, results.timeprocess_implicit]
+        for i in erro_implicit_dx:
+            list_implicit.append(i)
+        for i in erro_implicit_dt:
             list_implicit.append(i)
         # --------------------------------------------------------------------------------------------------------------
         data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
@@ -85,6 +91,7 @@ class PressureBoundaries(ObjectCase):
         root_fig = r'results\OneDimensionalFlow\PressurePressure_Simulator'
         Functions.plot_graphs(dataclass=results, columns=[10, 50, 100], root=root_fig)
         Functions.plot_animation_results(data=results, root=root_fig)
+        Functions.plot_pressuremap_animation(data=results, root=root_fig)
 
 
 class FlowPressureBoundaries(ObjectCase):
@@ -99,19 +106,25 @@ class FlowPressureBoundaries(ObjectCase):
         results = self.results
         extract_columns = [col for col in results.implicit.columns if col != 0.0]
         # --------------------------------------------------------------------------------------------------------------
-        erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
-                                          columns=extract_columns, n_cell=results.ncell_explicit)
-        erro_implicit = Functions.fo_erro(data_analitical=results.analitical_implicit, data_method=results.implicit,
-                                          columns=extract_columns, n_cell=results.ncell_implicit)
+        erro_explicit_dx, erro_explicit_dt = Functions.fo_erro(data_analitical=results.analitical_explicit,
+                                                               data_method=results.explicit,
+                                                               columns=extract_columns, n_cell=results.ncell_explicit)
+        erro_implicit_dx, erro_implicit_dt = Functions.fo_erro(data_analitical=results.analitical_implicit,
+                                                               data_method=results.implicit,
+                                                               columns=extract_columns, n_cell=results.ncell_implicit)
         # --------------------------------------------------------------------------------------------------------------
         list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
                          results.timeprocess_explicit, results.ncell_explicit]
-        for i in erro_explicit:
+        for i in erro_explicit_dx:
+            list_explicit.append(i)
+        for i in erro_explicit_dt:
             list_explicit.append(i)
 
         list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
                          results.timeprocess_implicit, results.ncell_implicit]
-        for i in erro_implicit:
+        for i in erro_implicit_dx:
+            list_implicit.append(i)
+        for i in erro_implicit_dt:
             list_implicit.append(i)
         # --------------------------------------------------------------------------------------------------------------
         data = Functions.create_errordataframe_1d(explit_list=list_explicit, implicit_list=list_implicit,
@@ -120,6 +133,7 @@ class FlowPressureBoundaries(ObjectCase):
         root_fig = r'results\OneDimensionalFlow\FlowPressure_Simulator'
         Functions.plot_graphs(dataclass=results, columns=[10, 50, 100], root=root_fig)
         Functions.plot_animation_results(data=results, root=root_fig)
+        Functions.plot_pressuremap_animation(data=results, root=root_fig)
 
 
 class FlowBoundaries(ObjectCase):
