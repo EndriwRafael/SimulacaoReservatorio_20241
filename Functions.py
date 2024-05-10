@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
+from matplotlib.animation import FuncAnimation
 from pandas import DataFrame as Df
 import numpy as np
 import random as rm
@@ -18,7 +19,7 @@ def set_color(list_color: list):
     return f'C{a}'
 
 
-def plot_graphs(dataclass: object, columns, root):
+def plot_graphs(dataclass: object, columns, root: str):
     # ------------------------------------------------------------------------------------------------------------------
     fig, ax = plt.subplots()
     # legend_elements = []
@@ -48,12 +49,44 @@ def plot_graphs(dataclass: object, columns, root):
     ax.legend(framealpha=1, handles=patches)
     ax.grid()
     plt.tight_layout()
-    fig.savefig(root)
+    fig.savefig(f'{root}\\CompareAnalysis.png')
     plt.close()
     # ------------------------------------------------------------------------------------------------------------------
 
 
-def plot_animation_results(data: object):
+def plot_animation_results(data: object, root: str):
+
+    df_ana = data.analitical
+    df_exp = data.explicit
+    df_imp = data.implicit
+    columns = [coll for coll in df_imp.columns if coll != 0.0]
+
+    # Função para atualizar o gráfico a cada quadro da animação
+    def update(frame):
+
+        pressure_ana = [j for _, j in enumerate(df_ana.loc[:, columns[frame]])]
+        pressure_exp = [j for _, j in enumerate(df_exp.loc[:, columns[frame]])]
+        pressure_imp = [j for _, j in enumerate(df_imp.loc[:, columns[frame]])]
+
+        plt.cla()  # Limpa o eixo atual para atualizar o gráfico
+        ax.plot(df_ana.index, pressure_ana, label=f'Analítica t={columns[frame]}', color='red')
+        ax.scatter(df_exp.index, pressure_exp, marker='o', s=8, label=f'Explicita t={columns[frame]}', color='green')
+        ax.scatter(df_imp.index, pressure_imp, marker='^', s=.5, label=f'Implitia t={columns[frame]}', color='blue')
+        plt.ticklabel_format(axis='y', style='plain')
+        plt.ylim([df_ana.min().min(), df_ana.max().max()])
+        plt.xlabel('Comprimento (m)')
+        plt.ylabel('Pressão (Pa)')
+        plt.title("Comparação das Curvas (Analítico, Explicito e Implicito)")
+        ax.legend(framealpha=1)
+        ax.grid()
+        plt.tight_layout()
+
+    # Configuração do gráfico
+    fig, ax = plt.subplots()
+    ani = FuncAnimation(fig, update, frames=len(df_imp.columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
+
+    # Salvar a animação como GIF
+    ani.save(f'{root}\\animacao_dataframe.gif', writer='pillow', fps=1)  # 1 frame por segundo
     pass
 
 
