@@ -1,10 +1,12 @@
 import matplotlib.pyplot as plt
+from matplotlib import colors
+import pandas as pd
 from matplotlib.patches import Patch
 from matplotlib.animation import FuncAnimation
 from pandas import DataFrame as Df
 import numpy as np
 import random as rm
-from matplotlib.lines import Line2D
+# from matplotlib.lines import Line2D
 import sys
 import Object_Case
 import Object_Simulation
@@ -86,32 +88,100 @@ def plot_animation_results(data: object, root: str):
     ani = FuncAnimation(fig, update, frames=len(df_imp.columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
 
     # Salvar a animação como GIF
-    ani.save(f'{root}\\animacao_dataframe.gif', writer='pillow', fps=1)  # 1 frame por segundo
-    pass
+    ani.save(f'{root}\\animacao_dataframe.gif', writer='pillow', fps=3)  # 1 frame por segundo
+    plt.close()
+    # ------------------------------------------------------------------------------------------------------------------
 
 
-def fo_erro(data_analitical: Df, data_method: Df, columns: list, n_cell: int):
-    erro_list = []
-    # for data in columns:
-    #     suma = 0
+def plot_pressuremap_animation(data: object, root: str):
+    df_ana = data.analitical
+    df_exp = data.explicit
+    df_imp = data.implicit
+    columns = [coll for coll in df_imp.columns if coll != 0.0]
+
+    # Função para atualizar o gráfico a cada quadro da animação
+    def update(frame):
+        pressure_ana = [[j for _, j in enumerate(df_ana.loc[:, columns[frame]])],
+                        [j for _, j in enumerate(df_ana.loc[:, columns[frame]])]]
+        pressure_exp = [[j for _, j in enumerate(df_exp.loc[:, columns[frame]])],
+                        [j for _, j in enumerate(df_exp.loc[:, columns[frame]])]]
+        pressure_imp = [[j for _, j in enumerate(df_imp.loc[:, columns[frame]])],
+                        [j for _, j in enumerate(df_imp.loc[:, columns[frame]])]]
+
+        plt.cla()  # Limpa o eixo atual para atualizar o gráfico
+
+        plt.subplot(311)
+        plt.imshow(pressure_ana, cmap='rainbow', interpolation='bicubic', origin='lower',
+                   extent=(0, df_ana.index.max(), 0, 5),
+                   norm=colors.Normalize(vmin=df_ana.min().min(), vmax=df_ana.max().max()))
+        plt.tick_params('x', labelbottom=False)
+        plt.yticks([])
+        plt.ylabel('Analítica')
+
+        plt.subplot(312)
+        plt.imshow(pressure_exp, cmap='rainbow', interpolation='bicubic', origin='lower',
+                   extent=(0, df_ana.index.max(), 0, 5),
+                   norm=colors.Normalize(vmin=df_ana.min().min(), vmax=df_ana.max().max()))
+        plt.tick_params('x', labelbottom=False)
+        plt.yticks([])
+        plt.ylabel('Explícita')
+
+        plt.subplot(313)
+        plt.imshow(pressure_imp, cmap='rainbow', interpolation='bicubic', origin='lower',
+                   extent=(0, df_ana.index.max(), 0, 5),
+                   norm=colors.Normalize(vmin=df_ana.min().min(), vmax=df_ana.max().max()))
+        plt.tick_params('x', labelsize=6)
+        plt.yticks([])
+        plt.ylabel('Implícita')
+
+        cax = plt.axes((0.85, 0.1, 0.075, 0.8))
+        plt.colorbar(cax=cax, ax=None)  # cax=cax
+        # plt.xlim([df_ana.index.min(), df_ana.index.max()])
+        plt.xlabel('Comprimento (m)')
+
+    # Configuração do gráfico
+    fig = plt.figure(1)
+    ani = FuncAnimation(fig, update, frames=len(df_imp.columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
+
+    # Salvar a animação como GIF
+    ani.save(f'{root}\\animacao_map.gif', writer='pillow', fps=3)  # 1 frame por segundo
+    plt.close()
+    # ------------------------------------------------------------------------------------------------------------------
+
+
+def fo_erro(data_analitical: Df, data_method: Df, columns: list, n_cell: int) -> tuple:
+    erro_list_dx = []  # Erro em relação ao n e dx
+    erro_list_dt = []  # Erro em relação ao dt
     for col in data_method.columns:
         suma = 0
         if col in columns:
+            # Erro em relação ao n e dx
             for index in data_method.index:
                 suma += abs(data_analitical.loc[index, col] -
                             data_method.loc[index, col]) / data_analitical.loc[index, col]
-            erro_col = np.sqrt((1 / n_cell) * suma)
-            erro_list.append(erro_col)
-    return erro_list
+            erro_coldx = np.sqrt((1 / n_cell) * suma)
+            erro_list_dx.append(erro_coldx)
+
+            # Erro em relação ao dt
+            erro_list_dt.append(max((data_analitical.loc[:, col] - data_method.loc[:, col])))
+    return erro_list_dx, erro_list_dt
 
 
 def create_errordataframe_1d(explit_list: list, implicit_list: list, columns: list):
     data_erro = {'Explicit': explit_list, 'Implicit': implicit_list}
-    data_columns = ['dx', 'dt', 'tempo', 'n']
+    data_columns_mesh = ['dx', 'dt', 'n', 'tempo']
+    data_columns_error = []
     for i in columns:
-        data_columns.append(f'Erro {i}')
+        data_columns_error.append(f'Erro {i}')
 
-    dataframe = Df([], columns=data_columns, index=['Explicit', 'Implicit'])
+    iterables_for_mesh = [['Mesh'], data_columns_mesh]
+    series_mesh = pd.MultiIndex.from_product(iterables=iterables_for_mesh)
+    iterables_for_error = [['L2 for dx', 'L3 for dt'], data_columns_error]
+    series_error = pd.MultiIndex.from_product(iterables=iterables_for_error)
+
+    s = series_mesh.union(series_error, sort=False)
+
+    dataframe = Df([], columns=s, index=['Explicit', 'Implicit'])
     dataframe.loc['Explicit', :] = data_erro['Explicit']
     dataframe.loc['Implicit', :] = data_erro['Implicit']
     return dataframe
