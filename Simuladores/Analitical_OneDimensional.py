@@ -66,8 +66,8 @@ class PressureBoundaries(Analitical):
         return sum_value
 
     def plot_result(self, data: Df):
-        if not os.path.isdir('results/OneDimensionalFlow/PressurePressure_Simulator'):
-            os.makedirs('results/OneDimensionalFlow/PressurePressure_Simulator')
+        if not os.path.isdir(r'results\OneDimensionalFlow\PressurePressure_Simulator'):
+            os.makedirs(r'results\OneDimensionalFlow\PressurePressure_Simulator')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.analitical_mesh[key], ndigits=3)
@@ -127,8 +127,8 @@ class WellFlowAndPressureBoundaries(Analitical):
         super().__init__()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(f'results/OneDimensionalFlow/FlowPressure_Simulator'):
-            os.makedirs(f'results/OneDimensionalFlow/FlowPressure_Simulator')
+        if not os.path.isdir(r'results\OneDimensionalFlow\FlowPressure_Simulator'):
+            os.makedirs(r'results\OneDimensionalFlow\FlowPressure_Simulator')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.analitical_mesh[key], ndigits=3)
