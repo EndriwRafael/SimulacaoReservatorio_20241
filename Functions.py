@@ -47,7 +47,7 @@ def plot_graphs(dataclass: object, columns, root: str):
     plt.ticklabel_format(axis='y', style='plain')
     plt.xlabel('Comprimento (m)')
     plt.ylabel('Pressão (psia)')
-    plt.title("Comparação das Curvas (Analítico '-' , Explicito 'o' e Implicito '^'")
+    plt.title("Comparação das Curvas (Analítico, Explicito e Implicito")
     ax.legend(framealpha=1, handles=patches)
     ax.grid()
     plt.tight_layout()
