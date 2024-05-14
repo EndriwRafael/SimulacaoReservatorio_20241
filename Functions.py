@@ -134,8 +134,8 @@ def plot_pressuremap_animation(data: object, root: str):
         plt.yticks([])
         plt.ylabel('Implícita')
 
-        cax = plt.axes((0.85, 0.1, 0.075, 0.8))
-        plt.colorbar(cax=cax, ax=None)  # cax=cax
+        # cax = plt.axes((0.85, 0.1, 0.075, 0.8))
+        # plt.colorbar(cax=cax, ax=None)  # cax=cax
         # plt.xlim([df_ana.index.min(), df_ana.index.max()])
         plt.xlabel('Comprimento (m)')
 
