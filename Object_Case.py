@@ -61,7 +61,7 @@ class PressureBoundaries(ObjectCase):
             os.makedirs('results/OneDimensionalFlow/PressurePressure_Simulator')
         # --------------------------------------------------------------------------------------------------------------
         results = self.results
-        extract_columns = [col for col in results.implicit.columns if col != 0.0]
+        extract_columns = [col for col in results.implicit.columns if col != 0.0 and col in results.explicit.columns]
 
         # --------------------------------------------------------------------------------------------------------------
         erro_explicit_dx, erro_explicit_dt = Functions.fo_erro(data_analitical=results.analitical_explicit,
@@ -104,7 +104,7 @@ class FlowPressureBoundaries(ObjectCase):
             os.makedirs('results/OneDimensionalFlow/FlowPressure_Simulator')
         # --------------------------------------------------------------------------------------------------------------
         results = self.results
-        extract_columns = [col for col in results.implicit.columns if col != 0.0]
+        extract_columns = [col for col in results.implicit.columns if col != 0.0 and col in results.explicit.columns]
         # --------------------------------------------------------------------------------------------------------------
         erro_explicit_dx, erro_explicit_dt = Functions.fo_erro(data_analitical=results.analitical_explicit,
                                                                data_method=results.explicit,
@@ -114,14 +114,14 @@ class FlowPressureBoundaries(ObjectCase):
                                                                columns=extract_columns, n_cell=results.ncell_implicit)
         # --------------------------------------------------------------------------------------------------------------
         list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
-                         results.timeprocess_explicit, results.ncell_explicit]
+                         results.ncell_explicit, results.timeprocess_explicit]
         for i in erro_explicit_dx:
             list_explicit.append(i)
         for i in erro_explicit_dt:
             list_explicit.append(i)
 
         list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
-                         results.timeprocess_implicit, results.ncell_implicit]
+                         results.ncell_implicit, results.timeprocess_implicit]
         for i in erro_implicit_dx:
             list_implicit.append(i)
         for i in erro_implicit_dt:
@@ -146,7 +146,7 @@ class FlowBoundaries(ObjectCase):
             os.makedirs('results/OneDimensionalFlow/FlowFlow_Simulator')
         # --------------------------------------------------------------------------------------------------------------
         results = self.results
-        extract_columns = [col for col in results.implicit.columns if col != 0.0]
+        extract_columns = [col for col in results.implicit.columns if col != 0.0 and col in results.explicit.columns]
         # --------------------------------------------------------------------------------------------------------------
         erro_explicit = Functions.fo_erro(data_analitical=results.analitical_explicit, data_method=results.explicit,
                                           columns=extract_columns, n_cell=results.ncell_explicit)
@@ -154,12 +154,12 @@ class FlowBoundaries(ObjectCase):
                                           columns=extract_columns, n_cell=results.ncell_implicit)
         # --------------------------------------------------------------------------------------------------------------
         list_explicit = [results.dx_explicit, results.time_explicit[1] - results.time_explicit[0],
-                         results.timeprocess_explicit, results.ncell_explicit]
+                         results.ncell_explicit, results.timeprocess_explicit]
         for i in erro_explicit:
             list_explicit.append(i)
 
         list_implicit = [results.dx_implicit, results.time_implicit[1] - results.time_implicit[0],
-                         results.timeprocess_implicit, results.ncell_implicit]
+                         results.ncell_implicit, results.timeprocess_implicit]
         for i in erro_implicit:
             list_implicit.append(i)
         # --------------------------------------------------------------------------------------------------------------
