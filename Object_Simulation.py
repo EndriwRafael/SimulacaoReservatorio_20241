@@ -56,7 +56,7 @@ class OneDimensionalFlowMesh(Simulator):
 
         self.wellclass.analitical_mesh = self.wellclass.explicit_mesh
         self.wellclass.n_cells_analitical = self.wellclass.n_cells_explicit
-        analitical.set_parameters(t=self.wellclass.time_implicit, well_class=self.wellclass,
+        analitical.set_parameters(t=self.wellclass.time_explicit, well_class=self.wellclass,
                                   name_file='AnaliticalForExplicit')
         analitical.start_simulate()
         result_ana_exp = analitical.dataframe
