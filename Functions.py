@@ -61,7 +61,7 @@ def plot_animation_results(data: object, root: str):
     df_ana = data.analitical
     df_exp = data.explicit
     df_imp = data.implicit
-    columns = [coll for coll in df_imp.columns if coll != 0.0]
+    columns = [coll for coll in df_imp.columns if coll != 0.0 and coll in df_exp.columns]
 
     # Função para atualizar o gráfico a cada quadro da animação
     def update(frame):
@@ -85,7 +85,7 @@ def plot_animation_results(data: object, root: str):
 
     # Configuração do gráfico
     fig, ax = plt.subplots()
-    ani = FuncAnimation(fig, update, frames=len(df_imp.columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
+    ani = FuncAnimation(fig, update, frames=len(columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
 
     # Salvar a animação como GIF
     ani.save(f'{root}\\animacao_dataframe.gif', writer='pillow', fps=3)  # 1 frame por segundo
@@ -97,7 +97,7 @@ def plot_pressuremap_animation(data: object, root: str):
     df_ana = data.analitical
     df_exp = data.explicit
     df_imp = data.implicit
-    columns = [coll for coll in df_imp.columns if coll != 0.0]
+    columns = [coll for coll in df_imp.columns if coll != 0.0 and coll in df_exp.columns]
 
     # Função para atualizar o gráfico a cada quadro da animação
     def update(frame):
@@ -141,7 +141,7 @@ def plot_pressuremap_animation(data: object, root: str):
 
     # Configuração do gráfico
     fig = plt.figure(1)
-    ani = FuncAnimation(fig, update, frames=len(df_imp.columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
+    ani = FuncAnimation(fig, update, frames=len(columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
 
     # Salvar a animação como GIF
     ani.save(f'{root}\\animacao_map.gif', writer='pillow', fps=3)  # 1 frame por segundo
