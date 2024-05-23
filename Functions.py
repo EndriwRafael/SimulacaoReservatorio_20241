@@ -8,8 +8,7 @@ import numpy as np
 import random as rm
 # from matplotlib.lines import Line2D
 import sys
-import Object_Case
-import Object_Simulation
+from Objects import Object_Simulation, Object_Case
 from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Implicit_OneDimensional
 
 
