@@ -1,8 +1,7 @@
 import Functions
 import numpy as np
 from abc import ABC, abstractmethod
-from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Implicit_OneDimensional
-import Object_Result
+from Objects import Object_Result
 
 
 class Simulator(ABC):

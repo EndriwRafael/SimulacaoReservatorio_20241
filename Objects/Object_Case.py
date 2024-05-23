@@ -57,8 +57,8 @@ class PressureBoundaries(ObjectCase):
         self.condiction = 'PP'
 
     def compute(self):
-        if not os.path.isdir('results/OneDimensionalFlow/PressurePressure_Simulator'):
-            os.makedirs('results/OneDimensionalFlow/PressurePressure_Simulator')
+        if not os.path.isdir('../results/OneDimensionalFlow/PressurePressure_Simulator'):
+            os.makedirs('../results/OneDimensionalFlow/PressurePressure_Simulator')
         # --------------------------------------------------------------------------------------------------------------
         results = self.results
         extract_columns = [col for col in results.implicit.columns if col != 0.0 and col in results.explicit.columns]
@@ -100,8 +100,8 @@ class FlowPressureBoundaries(ObjectCase):
         self.condiction = 'FP'
 
     def compute(self):
-        if not os.path.isdir('results/OneDimensionalFlow/FlowPressure_Simulator'):
-            os.makedirs('results/OneDimensionalFlow/FlowPressure_Simulator')
+        if not os.path.isdir('../results/OneDimensionalFlow/FlowPressure_Simulator'):
+            os.makedirs('../results/OneDimensionalFlow/FlowPressure_Simulator')
         # --------------------------------------------------------------------------------------------------------------
         results = self.results
         extract_columns = [col for col in results.implicit.columns if col != 0.0 and col in results.explicit.columns]
