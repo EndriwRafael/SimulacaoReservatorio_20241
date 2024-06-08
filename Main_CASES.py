@@ -1,5 +1,5 @@
 """
-Main for Cases to Simulate Linear Flow Monofase 1D - EDH _ Condições de Dirichlet nas duas Extremidades
+Main for Cases to Simulate Linear Flow Monofase 1D - EDH
 """
 import Functions
 import numpy as np
@@ -27,7 +27,8 @@ n_cells_explicit = 40
 n_cells_implicit = 1000
 
 ''' Inicializando simulador ---------------------------------------------------------------------------------------- '''
-case = Functions.get_object_case(well_condiction=well_boundary, external_condiction=external_boundary)
+case = Functions.get_object_case(well_condiction=well_boundary, external_condiction=external_boundary,
+                                 top_condiction=None, base_condiction=None, fluxtype=flux)
 # Nos casos de fluxo, os fluxos devem ser passados. No caso de apenas pressão, não é necessário infomar os fluxos.
 case.set_case_parameters(initial_press=pressure_initial, well_press=pressure_well, res_area=area,
                          res_thick=thickness, porosity=porosit, viscosity=viscosi,
