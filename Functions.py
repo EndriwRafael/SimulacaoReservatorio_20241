@@ -281,27 +281,78 @@ def create_pressurecoeficients_flowboundaries(n_cells: int, param_values: dict):
     return field_matrix, constant_matrix
 
 
-def get_object_case(well_condiction: str, external_condiction: str):
+def get_object_case(well_condiction: str, external_condiction: str, top_condiction: str or None,
+                    base_condiction: str or None,
+                    fluxtype: str):
     """
-
     :param well_condiction: Well boundary condiction. Must be Pressure (P) or Flow (F).
     :param external_condiction: External boundary condiction. Must be Pressure (P) or Flow (F).
+    :param top_condiction: Top boundary condiction. Must be Pressure (P) or Flow (F).
+    :param base_condiction: Base boundary condiction. Must be Pressure (P) or Flow (F).
+    :param fluxtype: Flow dimension - 1D, 2D or 3D
     :return: The class corresponding to the simulation condictions.
     """
-    if well_condiction != 'P' and well_condiction != 'F':
+    list_condiction = ['P', 'F', None]
+    flow_type = ['1D', '2D', '3D']
+
+    if well_condiction not in list_condiction:
         print('Error!!! well boundary must be P (Pressure) or F (Flow).')
         sys.exit()
 
-    if external_condiction != 'P' and external_condiction != 'F':
+    if external_condiction not in list_condiction:
         print('Error!!! external boundary must be P (Pressure) or F (Flow).')
         sys.exit()
 
-    if well_condiction.upper() == 'P' and external_condiction.upper() == 'P':
-        return Object_Case.PressureBoundaries()
-    elif well_condiction.upper() == 'F' and external_condiction.upper() == 'P':
-        return Object_Case.FlowPressureBoundaries()
-    else:
-        return Object_Case.FlowBoundaries()
+    if top_condiction not in list_condiction:
+        print('Error!!! top boundary must be P (Pressure), F (Flow) or None (if 1D flow).')
+        sys.exit()
+
+    if base_condiction not in list_condiction:
+        print('Error! base boundary must be P (Pressure), F (Flow) or None (if 1D flow).')
+        sys.exit()
+
+    if fluxtype not in flow_type:
+        print('Error!!! the parameter fluxtype must be 1D, 2D or 3D.')
+
+    if fluxtype == '1D':
+
+        if well_condiction.upper() == 'P' and external_condiction.upper() == 'P':
+            condiction = 'PressurePressure'
+
+        elif well_condiction.upper() == 'F' and external_condiction.upper() == 'P':
+            condiction = 'FlowPressure'
+
+        else:
+            condiction = 'FlowFlow'
+
+        return Object_Case.OneDimensionalFlowCase(condiction=condiction)
+
+    elif fluxtype == '2D':
+
+        if (well_condiction.upper() == 'P' and external_condiction.upper() == 'P' and top_condiction.upper() == 'P'
+                and base_condiction.upper() == 'P'):
+            condiction = 'Pressure Boundaires Only '
+
+        elif (well_condiction.upper() == 'P' and external_condiction.upper() == 'P' and top_condiction.upper() == 'F'
+              and base_condiction.upper() == 'F'):
+            condiction = 'Pressure Well_Edge and Flow Boundaries '
+
+        elif (well_condiction.upper() == 'F' and external_condiction.upper() == 'P' and top_condiction.upper() == 'P'
+              and base_condiction.upper() == 'P'):
+            condiction = 'Flow Well and Pressure Boundaries '
+
+        elif (well_condiction.upper() == 'F' and external_condiction.upper() == 'P' and top_condiction.upper() == 'F'
+              and base_condiction.upper() == 'F'):
+            condiction = 'Flow Well with Pressure Edge and Flow Boundaries '
+
+        elif (well_condiction.upper() == 'F' and external_condiction.upper() == 'F' and top_condiction.upper() == 'P'
+              and base_condiction.upper() == 'P'):
+            condiction = 'Flow Well_Edge and Pressure Boundaries '
+
+        else:
+            condiction = 'Flow Boundaries Only '
+
+        return Object_Case.TwoDimensionalFlowCase(condiction=condiction)
 
 
 def get_object_mesh(flow_type: str, wellobject: object):
@@ -324,10 +375,10 @@ def get_object_mesh(flow_type: str, wellobject: object):
 
 
 def set_object_simulation(boundaries: str):
-    if boundaries == 'PP':
+    if boundaries == 'PressurePressure':
         return (Analitical_OneDimensional.PressureBoundaries(), Explicit_OneDimensional.PressureBoundaries(),
                 Implicit_OneDimensional.PressureBoundaries())
-    elif boundaries == 'FP':
+    elif boundaries == 'FlowPressure':
         return (Analitical_OneDimensional.WellFlowAndPressureBoundaries(),
                 Explicit_OneDimensional.WellFlowAndPressureBoundaries(),
                 Implicit_OneDimensional.WellFlowAndPressureBoundaries())
