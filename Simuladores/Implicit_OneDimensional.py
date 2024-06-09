@@ -42,8 +42,8 @@ class PressureBoundaries(Implicit):
         super().__init__()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(r'results\OneDimensionalFlow\PressurePressure_Simulator'):
-            os.makedirs(r'results\OneDimensionalFlow\PressurePressure_Simulator')
+        if not os.path.isdir(f'{self.well_class.rootpath}'):
+            os.makedirs(f'{self.well_class.rootpath}')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3)
@@ -63,10 +63,12 @@ class PressureBoundaries(Implicit):
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.png')
+        # plt.savefig(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.png')
+        plt.savefig(f'{self.well_class.rootpath}\\PressurePressure_{self.name}.png')
         plt.close()
 
-        data.to_excel(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.xlsx')
+        # data.to_excel(f'results\\OneDimensionalFlow\\PressurePressure_Simulator\\PressurePressure_{self.name}.xlsx')
+        data.to_excel(f'{self.well_class.rootpath}\\PressurePressure_{self.name}.xlsx')
         self.dataframe = data
 
     def start_simulate(self):
@@ -117,8 +119,8 @@ class WellFlowAndPressureBoundaries(Implicit):
         super().__init__()
 
     def plot_results(self, data: Df):
-        if not os.path.isdir(r'results\OneDimensionalFlow\FlowPressure_Simulator'):
-            os.makedirs(r'results\OneDimensionalFlow\FlowPressure_Simulator')
+        if not os.path.isdir(f'{self.well_class.rootpath}'):
+            os.makedirs(f'{self.well_class.rootpath}')
 
         # Setting the mesh points as the dataframe index
         index_for_dataframe = [round(self.well_class.implicit_mesh[key], ndigits=3)
@@ -138,10 +140,12 @@ class WellFlowAndPressureBoundaries(Implicit):
         plt.legend(framealpha=1)
         plt.grid()
         plt.tight_layout()
-        plt.savefig(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.png')
+        # plt.savefig(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.png')
+        plt.savefig(f'{self.well_class.rootpath}\\FlowPressure_{self.name}.png')
         plt.close()
 
-        data.to_excel(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.xlsx')
+        # data.to_excel(f'results\\OneDimensionalFlow\\FlowPressure_Simulator\\FlowPressure_{self.name}.xlsx')
+        data.to_excel(f'{self.well_class.rootpath}\\FlowPressure_{self.name}.xlsx')
         # self.well_class.dataframe_to_implicit = data
         self.dataframe = data
 
