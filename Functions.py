@@ -228,6 +228,62 @@ def create_mesh_1d(time_values: np.ndarray, n_cells: int, wellclass: object, met
     return grid, deltax
 
 
+def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, method: str) -> tuple:
+    """
+        Function to generate the grid for simulating pressure field. You should pass the value of cells that you wish
+        your grid to have.
+
+        :param time_values: time discretization.
+        :param method: numerical method used.
+        :param wellclass: object case containing the case parameters.
+        :param n_cells: Number of cells that you wish to divide your grid. Must be an integer value.
+        :return: The mesh dict of your problem with the internal points and the all contour points!
+    """
+    if type(n_cells) is not int:
+        print(f'Error!!! The parameter "n_cells" must be set as an integer value. Type passed: {type(n_cells)}.')
+        sys.exit()
+
+    deltax, deltay = wellclass.res_length / n_cells, wellclass.res_thickness / n_cells
+
+    if deltax != deltay:
+        print('Error! the discretization is not equal for x and y axis.')
+        sys.exit()
+
+    initial_point = deltax / 2
+
+    final_point_x = wellclass.res_length - deltax / 2
+    x_array = np.linspace(initial_point, final_point_x, n_cells)  # internal points of the grid
+    x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
+    x_array = np.append(x_array, int(wellclass.res_length))  # insert the final contour point
+    x_array = [round(i, ndigits=3) for i in x_array]
+
+    final_point_y = wellclass.res_thickness - deltax / 2
+    y_array = np.linspace(initial_point, final_point_y, n_cells)  # internal points of the grid
+    y_array = np.insert(y_array, 0, 0)  # insert the initial contour point
+    y_array = np.append(y_array, int(wellclass.res_thickness))  # insert the final contour point
+    y_array = [round(i, ndigits=3) for i in y_array]
+    y_array.reverse()
+
+    grid = {i: Df([], columns=x_array, index=y_array) for i in time_values}
+
+    delta_t = time_values[1] - time_values[0]
+    if method == 'Explicit':
+        wellclass.rx_explicit = delta_t / (deltax ** 2)
+        wellclass.time_explicit = time_values
+        if wellclass.rx_explicit * wellclass.eta >= 0.25:
+            print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
+            print(f'rx = {wellclass.r_x_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
+                  f'{wellclass.r_x_explicit * wellclass.eta}')
+            sys.exit()
+        else:
+            pass
+    else:
+        wellclass.rx_implicit = delta_t / (deltax ** 2)
+        wellclass.time_implicit = time_values
+
+    return grid, deltax
+
+
 def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:
     """
     Function that will create the dataframe table for the pressure field with relative mesh grid created.
@@ -358,18 +414,19 @@ def get_object_case(well_condiction: str, external_condiction: str, top_condicti
 def get_object_mesh(flow_type: str, wellobject: object):
     """
 
-    :param wellobject:
-    :param flow_type:
+    :param wellobject: Object containing all the case parameters.
+    :param flow_type: Type of flux. Must be 1D, 2D or 3D.
     :return:
     """
-    if flow_type != '1D' and flow_type != '2D' and flow_type != '3D':
+    flux_type_dinam = ['1D', '2D', '3D']
+    if flow_type not in flux_type_dinam:
         print("Error! The flow dinamics must be 1D, 2D or 3D.")
         sys.exit()
 
     if flow_type == '1D':
         return Object_Simulation.OneDimensionalFlowMesh(wellcase=wellobject)
     elif flow_type == '2D':
-        return Object_Simulation.TwoDimensionalFlowMesh
+        return Object_Simulation.TwoDimensionalFlowMesh(wellcase=wellobject)
     else:
         return Object_Simulation.ThreeDimensionalFlowMesh
 

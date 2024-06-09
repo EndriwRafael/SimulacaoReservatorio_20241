@@ -16,6 +16,11 @@ class Simulator(ABC):
         """
         pass
 
+    @abstractmethod
+    def set_mesh_grid(self, time_explicit: np.ndarray, n_cells_explicit: int,
+                      time_implicit: np.ndarray, n_cells_implicit: int):
+        pass
+
 
 class OneDimensionalFlowMesh(Simulator):
     def __init__(self, wellcase):
@@ -99,9 +104,26 @@ class OneDimensionalFlowMesh(Simulator):
              self.wellclass.time_implicit)
 
 
-class TwoDimensionalFlowMesh:
-    def __init__(self):
-        self.mesh = {}
+class TwoDimensionalFlowMesh(Simulator):
+    def __init__(self, wellcase):
+        super().__init__()
+        self.wellclass = wellcase
+
+    def simulate(self):
+        return
+
+    def set_mesh_grid(self, time_explicit: np.ndarray, n_cells_explicit: int,
+                      time_implicit: np.ndarray, n_cells_implicit: int):
+        self.wellclass.explicit_mesh, self.wellclass.dx_explicit = Functions.create_mesh_2d(time_values=time_explicit,
+                                                                                            n_cells=n_cells_explicit,
+                                                                                            wellclass=self.wellclass,
+                                                                                            method='Explicit')
+
+        self.wellclass.implicit_mesh, self.wellclass.dx_implicit = Functions.create_mesh_2d(time_values=time_implicit,
+                                                                                            n_cells=n_cells_implicit,
+                                                                                            wellclass=self.wellclass,
+                                                                                            method='Implicit')
+        pass
 
 
 class ThreeDimensionalFlowMesh:

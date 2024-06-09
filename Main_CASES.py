@@ -13,12 +13,12 @@ porosit = 0.2
 viscosi = .001
 compressibi = 2.04e-9
 area = 200.
-thickness = 10.
+thickness = 20.
 wellflow = 0.01
 injectivityflow = 0.01
 
 ''' Definindo condições de simulação ------------------------------------------------------------------------------- '''
-well_boundary = 'F'
+well_boundary = 'P'
 external_boundary = 'P'
 flux = '1D'
 time_explicit = np.linspace(start=0, stop=100, num=401)
