@@ -45,7 +45,7 @@ class ObjectCase(ABC):
     @abstractmethod
     def compute(self):
         """
-        Method to compute the field pressure error for the problem methods used compared with analitical method.
+        Method to compute the post process of the simulation for field pressure analysis.
         ----------------------------------------------------------------------------------------------------------------
         """
         pass
