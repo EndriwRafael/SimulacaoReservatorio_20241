@@ -46,8 +46,10 @@ class OneDimensionalFlowMesh(Simulator):
             time_values=time_implicit, n_cells=1000, wellclass=self.wellclass, method='Analitical'
         )
 
+        self.wellclass.fluxtype = '1D'
+
     def simulate(self):
-        analitical, explicit, implicit = Functions.set_object_simulation(boundaries=self.wellclass.condiction)
+        analitical, explicit, implicit = Functions.set_object_simulation(flowtype=self.wellclass.fluxtype)
         # --------------------------------------------------------------------------------------------------------------
         analitical.set_parameters(t=self.wellclass.time_implicit, well_class=self.wellclass, name_file='Analitical')
         analitical.start_simulate()
@@ -123,7 +125,8 @@ class TwoDimensionalFlowMesh(Simulator):
                                                                                             n_cells=n_cells_implicit,
                                                                                             wellclass=self.wellclass,
                                                                                             method='Implicit')
-        pass
+
+        self.wellclass.fluxtype = '2D'
 
 
 class ThreeDimensionalFlowMesh:

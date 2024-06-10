@@ -9,7 +9,7 @@ import random as rm
 # from matplotlib.lines import Line2D
 import sys
 from Objects import Object_Simulation, Object_Case
-from Simuladores import Analitical_OneDimensional, Explicit_OneDimensional, Implicit_OneDimensional
+from Simuladores import ExplicitMethod, ImplicitMethod, AnaliticalMethod
 
 
 def set_color(list_color: list):
@@ -431,14 +431,11 @@ def get_object_mesh(flow_type: str, wellobject: object):
         return Object_Simulation.ThreeDimensionalFlowMesh
 
 
-def set_object_simulation(boundaries: str):
-    if boundaries == 'PressurePressure':
-        return (Analitical_OneDimensional.PressureBoundaries(), Explicit_OneDimensional.PressureBoundaries(),
-                Implicit_OneDimensional.PressureBoundaries())
-    elif boundaries == 'FlowPressure':
-        return (Analitical_OneDimensional.WellFlowAndPressureBoundaries(),
-                Explicit_OneDimensional.WellFlowAndPressureBoundaries(),
-                Implicit_OneDimensional.WellFlowAndPressureBoundaries())
+def set_object_simulation(flowtype: str):
+    if flowtype == '1D':
+        return (AnaliticalMethod.OneDimensionalAnaliticalMethod(), ExplicitMethod.OneDimensionalExplicitMethod(),
+                ImplicitMethod.OneDimensionalImplicitMethod())
+    elif flowtype == '2D':
+        pass
     else:
-        print('Error!!! The flow bondaries simulator was not implemented yet.')
-        sys.exit()
+        pass
