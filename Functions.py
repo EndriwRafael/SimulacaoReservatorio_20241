@@ -56,7 +56,6 @@ def plot_graphs(dataclass: object, columns, root: str):
 
 
 def plot_animation_results(data: object, root: str):
-
     df_ana = data.analitical
     df_exp = data.explicit
     df_imp = data.implicit
@@ -64,7 +63,6 @@ def plot_animation_results(data: object, root: str):
 
     # Função para atualizar o gráfico a cada quadro da animação
     def update(frame):
-
         pressure_ana = [j for _, j in enumerate(df_ana.loc[:, columns[frame]])]
         pressure_exp = [j for _, j in enumerate(df_exp.loc[:, columns[frame]])]
         pressure_imp = [j for _, j in enumerate(df_imp.loc[:, columns[frame]])]
@@ -98,7 +96,6 @@ def plot_pressuremap_animation(data: object, root: str):
     df_imp = data.implicit
     columns = [coll for coll in df_imp.columns if coll != 0.0 and coll in df_exp.columns]
 
-    # Função para atualizar o gráfico a cada quadro da animação
     def update(frame):
         pressure_ana = [[j for _, j in enumerate(df_ana.loc[:, columns[frame]])],
                         [j for _, j in enumerate(df_ana.loc[:, columns[frame]])]]
@@ -109,41 +106,38 @@ def plot_pressuremap_animation(data: object, root: str):
 
         plt.cla()  # Limpa o eixo atual para atualizar o gráfico
 
-        plt.subplot(311)
-        plt.imshow(pressure_ana, cmap='rainbow', interpolation='bicubic', origin='lower',
-                   extent=(0, df_ana.index.max(), 0, 5),
-                   norm=colors.Normalize(vmin=df_ana.min().min(), vmax=df_ana.max().max()))
-        plt.tick_params('x', labelbottom=False)
-        plt.yticks([])
-        plt.ylabel('Analítica')
+        def plot_map(axis, dframe, label):
+            axis.imshow(dframe, cmap='rainbow', interpolation='bicubic', origin='lower',
+                        extent=(0, df_ana.index.max(), 0, 5),
+                        norm=colors.Normalize(vmin=df_imp.min().min(), vmax=df_imp.max().max()))
+            axis.set_yticks([])
+            axis.set_ylabel(label)
 
-        plt.subplot(312)
-        plt.imshow(pressure_exp, cmap='rainbow', interpolation='bicubic', origin='lower',
-                   extent=(0, df_ana.index.max(), 0, 5),
-                   norm=colors.Normalize(vmin=df_ana.min().min(), vmax=df_ana.max().max()))
-        plt.tick_params('x', labelbottom=False)
-        plt.yticks([])
-        plt.ylabel('Explícita')
+        for nn, ax in enumerate(axs):
 
-        plt.subplot(313)
-        plt.imshow(pressure_imp, cmap='rainbow', interpolation='bicubic', origin='lower',
-                   extent=(0, df_ana.index.max(), 0, 5),
-                   norm=colors.Normalize(vmin=df_ana.min().min(), vmax=df_ana.max().max()))
-        plt.tick_params('x', labelsize=6)
-        plt.yticks([])
-        plt.ylabel('Implícita')
-
-        # cax = plt.axes((0.85, 0.1, 0.075, 0.8))
-        # plt.colorbar(cax=cax, ax=None)  # cax=cax
-        # plt.xlim([df_ana.index.min(), df_ana.index.max()])
-        plt.xlabel('Comprimento (m)')
+            if nn == 0:
+                plot_map(ax, pressure_ana, 'Analitica')
+            elif nn == 1:
+                plot_map(ax, pressure_exp, 'Explícita')
+            else:
+                plot_map(ax, pressure_imp, 'Implícita')
 
     # Configuração do gráfico
-    fig = plt.figure(1)
-    ani = FuncAnimation(fig, update, frames=len(columns) - 1, interval=1000)  # Intervalo de 1000ms entre frames
+    fig = plt.figure()
+    subfigs = fig.subfigures(1, 1)
+    axs = subfigs.subplots(3, 1, sharex=True)
+
+    df_map = [[j for _, j in enumerate(df_imp.loc[:, :])],
+              [j for _, j in enumerate(df_imp.loc[:, :])]]
+    map_to_plot = plt.imshow(df_map, cmap='rainbow', interpolation='bicubic', origin='lower',
+                             extent=(0, df_ana.index.max(), 0, 5),
+                             norm=colors.Normalize(vmin=df_imp.min().min(), vmax=df_imp.max().max()))
+    fig.colorbar(mappable=map_to_plot, ax=axs)
+
+    ani = FuncAnimation(fig, update, frames=len(columns) - 1, interval=500)  # Intervalo de 1000ms entre frames
 
     # Salvar a animação como GIF
-    ani.save(f'{root}\\animacao_map.gif', writer='pillow', fps=3)  # 1 frame por segundo
+    ani.save(f'{root}\\animacao_map.gif', writer='pillow', fps=60)  # 1 frame por segundo
     plt.close()
     # ------------------------------------------------------------------------------------------------------------------
 
