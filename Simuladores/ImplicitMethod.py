@@ -161,3 +161,16 @@ class OneDimensionalImplicitMethod(Implicit):
         self.well_class.time_TO_implicit = end_time - start_time
 
         self.plot_results(data=pressure_df)
+
+
+class TwoDimensionalImplicitMethod(Implicit):
+    def __init__(self):
+        super().__init__()
+        self.parameters = None
+
+    def set_matrixparameters(self):
+        pass
+
+    def start_simulate(self):
+        pass
+

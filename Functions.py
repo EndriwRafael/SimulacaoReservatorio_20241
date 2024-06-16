@@ -237,42 +237,53 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
         print(f'Error!!! The parameter "n_cells" must be set as an integer value. Type passed: {type(n_cells)}.')
         sys.exit()
 
-    deltax, deltay = wellclass.res_length / n_cells, wellclass.res_thickness / n_cells
+    deltax, deltay = wellclass.res_length / n_cells, wellclass.res_width / n_cells
 
     if deltax != deltay:
-        print('Error! the discretization is not equal for x and y axis.')
-        sys.exit()
+        pass
 
-    initial_point = deltax / 2
-
+    initial_point_x = deltax / 2
     final_point_x = wellclass.res_length - deltax / 2
-    x_array = np.linspace(initial_point, final_point_x, n_cells)  # internal points of the grid
+    x_array = np.linspace(initial_point_x, final_point_x, n_cells)  # internal points of the grid
     x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
     x_array = np.append(x_array, int(wellclass.res_length))  # insert the final contour point
     x_array = [round(i, ndigits=3) for i in x_array]
 
-    final_point_y = wellclass.res_thickness - deltax / 2
-    y_array = np.linspace(initial_point, final_point_y, n_cells)  # internal points of the grid
+    initial_point_y = deltay / 2
+    final_point_y = wellclass.res_width - deltax / 2
+    y_array = np.linspace(initial_point_y, final_point_y, n_cells)  # internal points of the grid
     y_array = np.insert(y_array, 0, 0)  # insert the initial contour point
-    y_array = np.append(y_array, int(wellclass.res_thickness))  # insert the final contour point
+    y_array = np.append(y_array, int(wellclass.res_width))  # insert the final contour point
     y_array = [round(i, ndigits=3) for i in y_array]
     y_array.reverse()
 
-    grid = {i: Df([], columns=x_array, index=y_array) for i in time_values}
+    index_for_dataframe = np.linspace(0, n_cells + 1, n_cells + 2)
+    index_column_x = [int(i) for i in index_for_dataframe]
+    index_row_y = [int(i) for i in index_for_dataframe]
+    index_row_y.reverse()
+
+    grid = {i: Df([], columns=index_column_x, index=index_row_y) for i in time_values}
 
     delta_t = time_values[1] - time_values[0]
     if method == 'Explicit':
         wellclass.rx_explicit = delta_t / (deltax ** 2)
+        wellclass.ry_explicit = delta_t / (deltay ** 2)
         wellclass.time_explicit = time_values
         if wellclass.rx_explicit * wellclass.eta >= 0.25:
-            print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
-            print(f'rx = {wellclass.r_x_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
-                  f'{wellclass.r_x_explicit * wellclass.eta}')
+            print(f'Error: O critério de convergência não foi atingido para o eixo x. Parâmetro "(rx * eta) > 0.25".')
+            print(f'rx = {wellclass.rx_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
+                  f'{wellclass.rx_explicit * wellclass.eta}')
+            sys.exit()
+        elif wellclass.ry_explicit * wellclass.eta >= 0.25:
+            print(f'Error: O critério de convergência não foi atingido para o eixo y. Parâmetro "(ry * eta) > 0.25".')
+            print(f'rx = {wellclass.ry_explicit} // eta = {wellclass.eta}  // (ry * eta) = '
+                  f'{wellclass.ry_explicit * wellclass.eta}')
             sys.exit()
         else:
             pass
     else:
         wellclass.rx_implicit = delta_t / (deltax ** 2)
+        wellclass.ry_implicit = delta_t / (deltay ** 2)
         wellclass.time_implicit = time_values
 
     return grid, deltax
@@ -331,38 +342,50 @@ def create_pressurecoeficients_flowboundaries(n_cells: int, param_values: dict):
     return field_matrix, constant_matrix
 
 
-def get_object_case(well_condiction: str, external_condiction: str, top_condiction: str or None,
-                    base_condiction: str or None,
-                    fluxtype: str):
+def get_object_case(fluxtype: str, well_condiction=None, external_condiction=None,
+                    top_condiction=None, base_condiction=None, left_condition=None,
+                    right_condition=None):
     """
+    :param left_condition: Left boundary condiction. Must be Pressure (P) or Flow (F).
+    :param right_condition: Right boundary condiction. Must be Pressure (P) or Flow (F).
     :param well_condiction: Well boundary condiction. Must be Pressure (P) or Flow (F).
     :param external_condiction: External boundary condiction. Must be Pressure (P) or Flow (F).
     :param top_condiction: Top boundary condiction. Must be Pressure (P) or Flow (F).
     :param base_condiction: Base boundary condiction. Must be Pressure (P) or Flow (F).
     :param fluxtype: Flow dimension - 1D, 2D or 3D
+
     :return: The class corresponding to the simulation condictions.
     """
     list_condiction = ['P', 'F', None]
     flow_type = ['1D', '2D', '3D']
 
     if well_condiction not in list_condiction:
-        print('Error!!! well boundary must be P (Pressure) or F (Flow).')
+        print('Error: well boundary must be P (Pressure) or F (Flow).')
         sys.exit()
 
     if external_condiction not in list_condiction:
-        print('Error!!! external boundary must be P (Pressure) or F (Flow).')
+        print('Error: external boundary must be P (Pressure) or F (Flow).')
         sys.exit()
 
     if top_condiction not in list_condiction:
-        print('Error!!! top boundary must be P (Pressure), F (Flow) or None (if 1D flow).')
+        print('Error: top boundary must be P (Pressure), F (Flow) or None if 1D flow.')
         sys.exit()
 
     if base_condiction not in list_condiction:
-        print('Error! base boundary must be P (Pressure), F (Flow) or None (if 1D flow).')
+        print('Error: base boundary must be P (Pressure), F (Flow) or None if 1D flow.')
+        sys.exit()
+
+    if left_condition not in list_condiction:
+        print('Error: Left boundary must be P (Pressure), F (Flow) or None if 1D flow.')
+        sys.exit()
+
+    if right_condition not in list_condiction:
+        print('Error: Left boundary must be P (Pressure), F (Flow) or None if 1D flow.')
         sys.exit()
 
     if fluxtype not in flow_type:
-        print('Error!!! the parameter fluxtype must be 1D, 2D or 3D.')
+        print('Error: the parameter fluxtype must be 1D, 2D or 3D.')
+        sys.exit()
 
     if fluxtype == '1D':
 
@@ -379,28 +402,34 @@ def get_object_case(well_condiction: str, external_condiction: str, top_condicti
 
     elif fluxtype == '2D':
 
-        if (well_condiction.upper() == 'P' and external_condiction.upper() == 'P' and top_condiction.upper() == 'P'
+        if (left_condition.upper() == 'P' and right_condition.upper() == 'P' and top_condiction.upper() == 'P'
                 and base_condiction.upper() == 'P'):
-            condiction = 'Pressure Boundaires Only '
+            condiction = 'Pressure Boundaires '
 
-        elif (well_condiction.upper() == 'P' and external_condiction.upper() == 'P' and top_condiction.upper() == 'F'
+        elif (left_condition.upper() == 'P' and right_condition.upper() == 'P' and top_condiction.upper() == 'F'
               and base_condiction.upper() == 'F'):
-            condiction = 'Pressure Well_Edge and Flow Boundaries '
+            condiction = 'Pressure LR and Flow TB '
 
-        elif (well_condiction.upper() == 'F' and external_condiction.upper() == 'P' and top_condiction.upper() == 'P'
+        elif (left_condition.upper() == 'F' and right_condition.upper() == 'P' and top_condiction.upper() == 'P'
               and base_condiction.upper() == 'P'):
-            condiction = 'Flow Well and Pressure Boundaries '
+            condiction = 'Flow left and Pressure Boundaries '
 
-        elif (well_condiction.upper() == 'F' and external_condiction.upper() == 'P' and top_condiction.upper() == 'F'
+        elif (left_condition.upper() == 'F' and right_condition.upper() == 'P' and top_condiction.upper() == 'F'
               and base_condiction.upper() == 'F'):
-            condiction = 'Flow Well with Pressure Edge and Flow Boundaries '
+            condiction = 'Flow LTB with Pressure R '
 
-        elif (well_condiction.upper() == 'F' and external_condiction.upper() == 'F' and top_condiction.upper() == 'P'
+        elif (left_condition.upper() == 'F' and right_condition.upper() == 'F' and top_condiction.upper() == 'P'
               and base_condiction.upper() == 'P'):
-            condiction = 'Flow Well_Edge and Pressure Boundaries '
+            condiction = 'Flow LR and Pressure TP '
+
+        elif (left_condition.upper() == 'F' and right_condition.upper() == 'F' and top_condiction.upper() == 'F'
+              and base_condiction.upper() == 'F'):
+            condiction = 'Flow Boundaries '
 
         else:
-            condiction = 'Flow Boundaries Only '
+            print('Error: You must set one possible condition combination. To see the possible combinations, '
+                  'take a look in the readme file!')
+            sys.exit()
 
         return Object_Case.TwoDimensionalFlowCase(condiction=condiction)
 

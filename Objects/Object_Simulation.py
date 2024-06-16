@@ -1,3 +1,5 @@
+import sys
+
 import Functions
 import numpy as np
 from abc import ABC, abstractmethod
@@ -111,22 +113,37 @@ class TwoDimensionalFlowMesh(Simulator):
         super().__init__()
         self.wellclass = wellcase
 
-    def simulate(self):
-        return
+    def set_mesh_grid(self, time_explicit=None or np.ndarray, n_cells_explicit=None or int,
+                      time_implicit=None or np.ndarray, n_cells_implicit=None or int):
 
-    def set_mesh_grid(self, time_explicit: np.ndarray, n_cells_explicit: int,
-                      time_implicit: np.ndarray, n_cells_implicit: int):
-        self.wellclass.explicit_mesh, self.wellclass.dx_explicit = Functions.create_mesh_2d(time_values=time_explicit,
-                                                                                            n_cells=n_cells_explicit,
-                                                                                            wellclass=self.wellclass,
-                                                                                            method='Explicit')
+        if time_explicit and n_cells_explicit:
+            self.wellclass.explicit_mesh, self.wellclass.dx_explicit = Functions.create_mesh_2d(
+                time_values=time_explicit,
+                n_cells=n_cells_explicit,
+                wellclass=self.wellclass,
+                method='Explicit')
+        elif time_explicit or n_cells_explicit:
+            print('Error: To run explicit method, you must set both parameters different than None (Time and ncells).')
+            sys.exit()
 
-        self.wellclass.implicit_mesh, self.wellclass.dx_implicit = Functions.create_mesh_2d(time_values=time_implicit,
-                                                                                            n_cells=n_cells_implicit,
-                                                                                            wellclass=self.wellclass,
-                                                                                            method='Implicit')
+        if time_implicit is not None and n_cells_implicit is not None:
+            self.wellclass.implicit_mesh, self.wellclass.dx_implicit = Functions.create_mesh_2d(
+                time_values=time_implicit,
+                n_cells=n_cells_implicit,
+                wellclass=self.wellclass,
+                method='Implicit')
+        elif time_implicit is not None or n_cells_implicit is not None:
+            print('Error: To run implicit method, you must set both parameters different than None (Time and ncells).')
+            sys.exit()
+
+        if (time_explicit is None and time_implicit is None) or (n_cells_implicit is None and n_cells_explicit is None):
+            print('Error: You must set at least one method to run!')
+            sys.exit()
 
         self.wellclass.fluxtype = '2D'
+
+    def simulate(self):
+        pass
 
 
 class ThreeDimensionalFlowMesh:

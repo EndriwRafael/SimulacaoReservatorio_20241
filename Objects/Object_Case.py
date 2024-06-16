@@ -6,6 +6,14 @@ import os
 
 class ObjectCase(ABC):
     def __init__(self):
+        self.rightflow = None
+        self.leftflow = None
+        self.topflow = None
+        self.baseflow = None
+        self.leftpress = None
+        self.rightpress = None
+        self.toppress = None
+        self.basepress = None
         self.deltaPressure = None
         self.eta = None
         self.injectflow = None
@@ -17,6 +25,7 @@ class ObjectCase(ABC):
         self.viscosity = None
         self.permeability = None
         self.res_length = None
+        self.res_width = None
         self.well_pressure = None
         self.initial_pressure = None
         self.results = None
@@ -28,7 +37,9 @@ class ObjectCase(ABC):
 
     def set_case_parameters(self, initial_press: int or float, well_press: int or float, res_len: int or float,
                             permeability: float, viscosity: float, porosity: float, compressibility: float,
-                            res_area: int or float, res_thick: float or int, wellflow=0, injectflow=0):
+                            res_area: int or float, res_thick: float or int, res_width=None, wellflow=None,
+                            injectflow=None, leftflow=None, rightflow=None, topflow=None, baseflow=None,
+                            left_press=None, right_press=None, top_press=None, base_press=None):
         self.initial_pressure = initial_press
         self.well_pressure = well_press
         self.res_length = res_len
@@ -38,8 +49,17 @@ class ObjectCase(ABC):
         self.compressibility = compressibility
         self.res_area = res_area
         self.res_thickness = res_thick
+        self.res_width = res_width
         self.well_flow = wellflow
         self.injectflow = injectflow
+        self.leftflow= leftflow
+        self.rightflow = rightflow
+        self.topflow = topflow
+        self.baseflow = baseflow
+        self.leftpress = left_press
+        self.rightpress = right_press
+        self.toppress = top_press
+        self.basepress = base_press
         self.eta, self.deltaPressure = self.calc()
 
     @abstractmethod
