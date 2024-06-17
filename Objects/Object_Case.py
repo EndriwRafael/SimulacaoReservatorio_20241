@@ -28,6 +28,7 @@ class ObjectCase(ABC):
         self.res_width = None
         self.well_pressure = None
         self.initial_pressure = None
+        self.wellpositions = None
         self.results = None
 
     def calc(self) -> tuple[float, float]:
@@ -36,10 +37,10 @@ class ObjectCase(ABC):
         return eta, delta_pressure
 
     def set_case_parameters(self, initial_press: int or float, well_press: int or float, res_len: int or float,
-                            permeability: float, viscosity: float, porosity: float, compressibility: float,
-                            res_area: int or float, res_thick: float or int, res_width=None, wellflow=None,
-                            injectflow=None, leftflow=None, rightflow=None, topflow=None, baseflow=None,
-                            left_press=None, right_press=None, top_press=None, base_press=None):
+                            viscosity: float, porosity: float, compressibility: float,
+                            res_area: int or float, res_thick: float or int, permeability=None, res_width=None,
+                            wellflow=None, injectflow=None, leftflow=None, rightflow=None, topflow=None, baseflow=None,
+                            left_press=None, right_press=None, top_press=None, base_press=None, well_position=None):
         self.initial_pressure = initial_press
         self.well_pressure = well_press
         self.res_length = res_len
@@ -60,7 +61,8 @@ class ObjectCase(ABC):
         self.rightpress = right_press
         self.toppress = top_press
         self.basepress = base_press
-        self.eta, self.deltaPressure = self.calc()
+        self.wellpositions = well_position
+        self.eta, self.deltaPressure = self.calc() if type(self.permeability) == float else None, None
 
     @abstractmethod
     def compute(self):
