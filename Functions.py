@@ -260,7 +260,6 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
     index_for_dataframe = np.linspace(0, n_cells + 1, n_cells + 2)
     index_column_x = [int(i) for i in index_for_dataframe]
     index_row_y = [int(i) for i in index_for_dataframe]
-    index_row_y.reverse()
 
     grid = {i: Df([], columns=index_column_x, index=index_row_y) for i in time_values}
 
@@ -286,7 +285,7 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
         wellclass.ry_implicit = delta_t / (deltay ** 2)
         wellclass.time_implicit = time_values
 
-    return grid, deltax
+    return grid, deltax, deltay
 
 
 def create_dataframe(time: np.ndarray, n_cells: int) -> tuple:
@@ -454,11 +453,17 @@ def get_object_mesh(flow_type: str, wellobject: object):
         return Object_Simulation.ThreeDimensionalFlowMesh
 
 
-def set_object_simulation(flowtype: str):
+def set_object_simulation(flowtype: str, method=None):
     if flowtype == '1D':
         return (AnaliticalMethod.OneDimensionalAnaliticalMethod(), ExplicitMethod.OneDimensionalExplicitMethod(),
                 ImplicitMethod.OneDimensionalImplicitMethod())
     elif flowtype == '2D':
-        pass
+        if method == 'explicit':
+            return ExplicitMethod.TwoDimensionalExplicitMethod()
+        elif method == 'implicit':
+            return ImplicitMethod.TwoDimensionalImplicitMethod()
+        else:
+            print('Error: The method you choose was not implemented yet.')
+            sys.exit()
     else:
         pass
