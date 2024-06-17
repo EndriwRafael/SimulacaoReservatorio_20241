@@ -166,10 +166,32 @@ class OneDimensionalImplicitMethod(Implicit):
 class TwoDimensionalImplicitMethod(Implicit):
     def __init__(self):
         super().__init__()
+        self.beta = None
+        self.ry = None
+        self.rx = None
         self.parameters = None
+        self.permeability_map = None
 
     def set_matrixparameters(self):
-        pass
+        self.beta = 1/(self.well_class.compressibility * self.well_class.viscosity * self.well_class.porosity)
+        self.rx = self.well_class.rx_implicit
+        self.ry = self.well_class.ry_implicit
+
+        with open(self.well_class.permeability, 'r') as file:
+            if file.readline()[:-1] != '# Permeability':
+                print('Error: The file is not a file of permeability map!')
+                sys.exit()
+            else:
+                pass
+
+        index_for_dataframe = np.linspace(1, self.well_class.n_cells_implicit, self.well_class.n_cells_implicit)
+        index_for_dataframe = [int(i) for i in index_for_dataframe]
+
+        perm = pd.read_csv(self.well_class.permeability, delim_whitespace=True, header=None, skiprows=1)
+        x = np.shape(perm)
+        perm = Df(perm)
+
+        self.permeability_map = Df(perm, columns=index_for_dataframe, index=index_for_dataframe)
 
     def start_simulate(self):
         pass
