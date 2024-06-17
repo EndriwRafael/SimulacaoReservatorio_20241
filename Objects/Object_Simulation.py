@@ -117,21 +117,31 @@ class TwoDimensionalFlowMesh(Simulator):
                       time_implicit=None or np.ndarray, n_cells_implicit=None or int):
 
         if time_explicit and n_cells_explicit:
-            self.wellclass.explicit_mesh, self.wellclass.dx_explicit = Functions.create_mesh_2d(
-                time_values=time_explicit,
-                n_cells=n_cells_explicit,
-                wellclass=self.wellclass,
-                method='Explicit')
+
+            self.wellclass.explicit_mesh, self.wellclass.dx_explicit, self.wellclass.dy_explicit = \
+                Functions.create_mesh_2d(
+                    time_values=time_explicit,
+                    n_cells=n_cells_explicit,
+                    wellclass=self.wellclass,
+                    method='Explicit')
+
+            self.wellclass.n_cells_explicit = n_cells_explicit
+
         elif time_explicit or n_cells_explicit:
             print('Error: To run explicit method, you must set both parameters different than None (Time and ncells).')
             sys.exit()
 
         if time_implicit is not None and n_cells_implicit is not None:
-            self.wellclass.implicit_mesh, self.wellclass.dx_implicit = Functions.create_mesh_2d(
-                time_values=time_implicit,
-                n_cells=n_cells_implicit,
-                wellclass=self.wellclass,
-                method='Implicit')
+
+            self.wellclass.implicit_mesh, self.wellclass.dx_implicit, self.wellclass.dy_implicit = \
+                Functions.create_mesh_2d(
+                    time_values=time_implicit,
+                    n_cells=n_cells_implicit,
+                    wellclass=self.wellclass,
+                    method='Implicit')
+
+            self.wellclass.n_cells_implicit = n_cells_implicit
+
         elif time_implicit is not None or n_cells_implicit is not None:
             print('Error: To run implicit method, you must set both parameters different than None (Time and ncells).')
             sys.exit()
@@ -143,7 +153,13 @@ class TwoDimensionalFlowMesh(Simulator):
         self.wellclass.fluxtype = '2D'
 
     def simulate(self):
-        pass
+        if hasattr(self.wellclass, 'explicit_mesh'):
+            print('Error: Explicit method for 2D flux was not implemented yet!')
+            sys.exit()
+
+        if hasattr(self.wellclass, 'implicit_mesh'):
+            implicit = Functions.set_object_simulation(flowtype=self.wellclass.fluxtype, method='implicit')
+            implicit.set_parameters(t=self.wellclass.time_implicit, well_class=self.wellclass, name_file='Implicit')
 
 
 class ThreeDimensionalFlowMesh:
