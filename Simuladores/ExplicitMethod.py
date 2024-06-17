@@ -205,3 +205,15 @@ class OneDimensionalExplicitMethod(Explicit):
         self.well_class.time_TO_explicit = end_time - start_time
 
         self.plot_results(data=pressure_df)
+
+
+class TwoDimensionalExplicitMethod(Explicit):
+    def __init__(self):
+        super().__init__()
+        pass
+
+    def set_objectivefunctions(self):
+        pass
+
+    def start_simulate(self):
+        pass
