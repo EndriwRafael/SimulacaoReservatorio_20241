@@ -248,6 +248,7 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
     x_array = np.insert(x_array, 0, 0)  # insert the initial contour point
     x_array = np.append(x_array, int(wellclass.res_length))  # insert the final contour point
     x_array = [round(i, ndigits=3) for i in x_array]
+    wellclass.x_values = x_array
 
     initial_point_y = deltay / 2
     final_point_y = wellclass.res_width - deltax / 2
@@ -256,6 +257,7 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
     y_array = np.append(y_array, int(wellclass.res_width))  # insert the final contour point
     y_array = [round(i, ndigits=3) for i in y_array]
     y_array.reverse()
+    wellclass.y_values = y_array
 
     index_for_dataframe = np.linspace(0, n_cells + 1, n_cells + 2)
     index_column_x = [int(i) for i in index_for_dataframe]
@@ -339,6 +341,145 @@ def create_pressurecoeficients_flowboundaries(n_cells: int, param_values: dict):
     constant_matrix[-1] = param_values['fn']
 
     return field_matrix, constant_matrix
+
+
+def calc_permeability(xi, xj):
+    """
+    Function to calculate the equivalent permeability between two cells in the mesh grid.
+    :param xi:
+    :param xj:
+    :return: The equivalent permeability between the two cells [float].
+    """
+    k_eq = 2 / ((xi ** -1) + (xj ** -1))
+    return k_eq
+
+
+def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability, rx, ry, beta):
+    """
+        Function to create the coefficient matrix with mxm dimensions that will be used to run implicit simulation
+        :param n_cells:
+        :param map_permeability:
+        :param rx:
+        :param ry:
+        :param beta:
+        :return: The coefficient matrix for the problem, and the matrix of font terms.
+    """
+    index_for_dataframe = np.linspace(1, n_cells, n_cells)
+    index_for_dataframe = [int(i) for i in index_for_dataframe]
+    map_permeability = map_permeability.set_index(pd.Index(index_for_dataframe))
+    map_permeability.columns = index_for_dataframe
+
+    coefficient_matrix = Df(float(0), columns=index_for_dataframe, index=index_for_dataframe)
+
+    for line in coefficient_matrix.index:  # (m)
+        for col in coefficient_matrix.columns:  # (n)
+
+            if line == 1:
+                if col == 1:
+                    # permeabilidade equivalente entre os blocos (1,1) e (1,2)
+                    k_eq_12 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                xj=map_permeability.loc[line, col + 1])
+                    # permeabilidade equivalente entre os blocos (1,1) e (2,1)
+                    k_eq_15 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                xj=map_permeability.loc[line + 1, col])
+
+                    coefficient_matrix.loc[line, col] = 2 + (beta * ((ry * k_eq_15) + (rx * k_eq_12)))
+                    coefficient_matrix.loc[line, col + 1] = - beta * rx * k_eq_12
+                    coefficient_matrix.loc[line + 1, col] = - beta * ry * k_eq_15
+
+                elif col == n_cells:
+                    # permeabilidade equivalente entre os blocos (1,n) e (1,n-1)
+                    k_eq_n_i = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line, col - 1])
+                    # permeabilidade equivalente entre os blocos (1,n) e (2,n)
+                    k_eq_n_j = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line + 1, col])
+
+                    coefficient_matrix.loc[line, col] = 2 + (beta * ((ry * k_eq_n_j) + (rx * k_eq_n_i)))
+                    coefficient_matrix.loc[line, col - 1] = - beta * rx * k_eq_n_i
+                    coefficient_matrix.loc[line + 1, col] = - beta * ry * k_eq_n_j
+
+                else:
+                    # permeabilidade equivalente entre os blocos (m,n) e (m+1,n)
+                    k_eq_ij = calc_permeability(xi=map_permeability.loc[line, col],
+                                                xj=map_permeability.loc[line + 1, col])
+
+                    coefficient_matrix.loc[line, col] = 1 + (beta * ry * k_eq_ij)
+                    coefficient_matrix.loc[line + 1, col] = - beta * ry * k_eq_ij
+
+            elif line == n_cells:
+                if col == 1:
+                    # permeabilidade equivalente entre os blocos (m,1) e (m,2)
+                    k_eq_m12 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line, col + 1])
+                    # permeabilidade equivalente entre os blocos (m,1) e (m-1,1)
+                    k_eq_m_j = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line - 1, col])
+
+                    coefficient_matrix.loc[line, col] = 2 + (beta * ((ry * k_eq_m_j) + (rx * k_eq_m12)))
+                    coefficient_matrix.loc[line, col + 1] = - beta * rx * k_eq_m12
+                    coefficient_matrix.loc[line - 1, col] = - beta * ry * k_eq_m_j
+
+                elif col == n_cells:
+                    # permeabilidade equivalente entre os blocos (m,n) e (m,n-1)
+                    k_eq_n_1 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line, col - 1])
+                    # permeabilidade equivalente entre os blocos (m,n) e (m-1,n)
+                    k_eq_m_1 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line - 1, col])
+
+                    coefficient_matrix.loc[line, col] = 2 + (beta * ((ry * k_eq_m_1) + (rx * k_eq_n_1)))
+                    coefficient_matrix.loc[line, col - 1] = - beta * rx * k_eq_n_1
+                    coefficient_matrix.loc[line - 1, col] = - beta * ry * k_eq_m_1
+
+                else:
+                    # permeabilidade equivalente entre os blocos (m,n) e (m-1,n)
+                    k_eq_n1 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                xj=map_permeability.loc[line - 1, col])
+
+                    coefficient_matrix.loc[line, col] = 1 + (beta * ry * k_eq_n1)
+                    coefficient_matrix.loc[line - 1, col] = - beta * ry * k_eq_n1
+
+            else:
+                if col == 1:
+                    # permeabilidade equivalente entre os blocos (m,n) e (m,n+1)
+                    k_eq_mn1 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line, col + 1])
+
+                    coefficient_matrix.loc[line, col] = 1 + (beta * rx * k_eq_mn1)
+                    coefficient_matrix.loc[line, col + 1] = - beta * rx * k_eq_mn1
+
+                elif col == n_cells:
+                    # permeabilidade equivalente entre os blocos (m,n) e (m,n-1)
+                    k_eq_mn_1 = calc_permeability(xi=map_permeability.loc[line, col],
+                                                  xj=map_permeability.loc[line, col - 1])
+
+                    coefficient_matrix.loc[line, col] = 1 + (beta * rx * k_eq_mn_1)
+                    coefficient_matrix.loc[line, col - 1] = - beta * rx * k_eq_mn_1
+
+                else:  # (Ponto interno!)
+                    # permeabilidade equivalente entre os blocos (m,n) e (m-1,n)
+                    k_eq_righ = calc_permeability(xi=map_permeability.loc[line, col],
+                                                  xj=map_permeability.loc[line - 1, col])
+                    # permeabilidade equivalente entre os blocos (m,n) e (m+1,n)
+                    k_eq_low = calc_permeability(xi=map_permeability.loc[line, col],
+                                                 xj=map_permeability.loc[line + 1, col])
+                    # permeabilidade equivalente entre os blocos (m,n) e (m,n-1)
+                    k_eq_left = calc_permeability(xi=map_permeability.loc[line, col],
+                                                  xj=map_permeability.loc[line, col - 1])
+                    # permeabilidade equivalente entre os blocos (m,n) e (m,n+1)
+                    k_eq_rigth = calc_permeability(xi=map_permeability.loc[line, col],
+                                                   xj=map_permeability.loc[line, col + 1])
+
+                    coefficient_matrix.loc[line, col] = (1 + (beta * rx * (k_eq_rigth + k_eq_left)) +
+                                                         (beta * ry * (k_eq_low + k_eq_righ)))
+                    coefficient_matrix.loc[line, col + 1] = - beta * rx * k_eq_rigth
+                    coefficient_matrix.loc[line, col - 1] = - beta * rx * k_eq_left
+                    coefficient_matrix.loc[line + 1, col] = - beta * ry * k_eq_low
+                    coefficient_matrix.loc[line - 1, col] = - beta * ry * k_eq_righ
+                    pass
+
+    return coefficient_matrix
 
 
 def get_object_case(fluxtype: str, well_condiction=None, external_condiction=None,

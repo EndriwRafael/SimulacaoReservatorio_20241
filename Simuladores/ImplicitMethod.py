@@ -182,17 +182,13 @@ class TwoDimensionalImplicitMethod(Implicit):
                 print('Error: The file is not a file of permeability map!')
                 sys.exit()
             else:
-                pass
-
-        index_for_dataframe = np.linspace(1, self.well_class.n_cells_implicit, self.well_class.n_cells_implicit)
-        index_for_dataframe = [int(i) for i in index_for_dataframe]
-
-        perm = pd.read_csv(self.well_class.permeability, delim_whitespace=True, header=None, skiprows=1)
-        x = np.shape(perm)
-        perm = Df(perm)
-
-        self.permeability_map = Df(perm, columns=index_for_dataframe, index=index_for_dataframe)
+                perm = pd.read_csv(file, delim_whitespace=True, header=None, skiprows=0)
+                self.permeability_map = Df(perm)
 
     def start_simulate(self):
+        coeficiente_matrix = Functions.create_pressurecoeficientes_flowboundaries2d(
+            n_cells=self.well_class.n_cells_implicit, map_permeability=self.permeability_map,
+            rx=self.ry, ry=self.rx, beta=self.beta
+        )
         pass
 

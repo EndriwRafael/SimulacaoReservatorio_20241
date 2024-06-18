@@ -160,6 +160,7 @@ class TwoDimensionalFlowMesh(Simulator):
         if hasattr(self.wellclass, 'implicit_mesh'):
             implicit = Functions.set_object_simulation(flowtype=self.wellclass.fluxtype, method='implicit')
             implicit.set_parameters(t=self.wellclass.time_implicit, well_class=self.wellclass, name_file='Implicit')
+            implicit.start_simulate()
 
 
 class ThreeDimensionalFlowMesh:
