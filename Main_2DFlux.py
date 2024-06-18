@@ -23,7 +23,7 @@ qleft = 0
 qtop = 0
 qbase = 0
 qright = 0
-permeability_map = 'PermeabilityMaps/Permeability_Map_With_DiagonalFault.txt'
+permeability_map = 'PermeabilityMaps/Permeability_Map_4x4.txt'
 
 ''' Definindo condições de simulação ------------------------------------------------------------------------------- '''
 # Para fluxo 1D:
@@ -43,7 +43,7 @@ well_positions = {
 
 # Dados para criação de malha - O número de células deve ser igual, para x e y.
 time_implicit = np.linspace(start=0, stop=100, num=101)
-n_cells_implicit = 100
+n_cells_implicit = 4
 
 ''' Inicializando simulador ---------------------------------------------------------------------------------------- '''
 case = Functions.get_object_case(top_condiction=top_boundary, base_condiction=base_boundary, fluxtype=flux,
