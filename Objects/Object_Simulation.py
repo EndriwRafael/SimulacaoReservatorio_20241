@@ -3,7 +3,7 @@ import sys
 import Functions
 import numpy as np
 from abc import ABC, abstractmethod
-from Objects import Object_Result
+from Objects import Objects_process
 
 
 class Simulator(ABC):
@@ -82,7 +82,7 @@ class OneDimensionalFlowMesh(Simulator):
         result_ana_imp = analitical.dataframe
 
         # --------------------------------------------------------------------------------------------------------------
-        self.wellclass.results = Object_Result.ResultsOneDimFlow(
+        self.wellclass.results = Objects_process.ResultsOneDimFlow(
             data_analitical=result_analitical,
             data_explicit=result_explicit,
             data_implicit=result_implicit,
