@@ -369,9 +369,17 @@ def find_indexs(dataframe, value):
         raise e
 
 
-def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability, rx, ry, beta):
+def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability, rx, ry, beta, wellposition, ct, mi,
+                                                 pho, dx, dy):
     """
         Function to create the coefficient matrix with mxm dimensions that will be used to run implicit simulation
+
+        :param dx:
+        :param dy:
+        :param pho:
+        :param mi:
+        :param ct:
+        :param wellposition:
         :param n_cells:
         :param map_permeability:
         :param rx:
@@ -379,6 +387,7 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
         :param beta:
         :return: The coefficient matrix for the problem, and the matrix of font terms.
     """
+
     index_for_map = np.linspace(1, n_cells, n_cells)
     index_for_map = [int(i) for i in index_for_map]
     map_permeability = map_permeability.set_index(pd.Index(index_for_map))
@@ -447,7 +456,7 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
             m, n = find_indexs(matrix_id, line)
             # permeabilidade equivalente entre os blocos (m,n) e (m-1,n)
             k_eq_righ = calc_permeability(xi=map_permeability.loc[m, n],
-                                           xj=map_permeability.loc[m - 1, n])
+                                          xj=map_permeability.loc[m - 1, n])
 
             coefficient_matrix.loc[line, line] = 1 + (beta * ry * k_eq_righ)
             coefficient_matrix.loc[line, line - n_cells] = - beta * ry * k_eq_righ
@@ -509,9 +518,32 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
                 coefficient_matrix.loc[line, line - 1] = - beta * rx * k_eq_left
                 cont = 1
 
+    font_term = np.zeros(n_cells ** 2)
+
+    for well, item in wellposition.items():
+        m = item.line
+        n = item.column
+        radius = item.radius
+        permeability = item.permeability
+        pressure = item.pressure
+        flow = item.flow
+        type_well = item.type
+        eta = permeability / (pho * mi * ct)
+        line = matrix_id.loc[m, n]
+
+        r_eq = np.sqrt((dx * dy) / np.pi)
+        gama = (2 * eta * np.pi) / (dx * dy * np.log(r_eq/radius))
+
+        if type_well == 'Production':
+            coefficient_matrix.loc[line, line] += gama
+            font_term[line - 1] = gama * pressure
+        else:
+            coefficient_matrix.loc[line, line] -= gama
+            font_term[line - 1] = - gama * pressure
+
     coefficient_matrix = coefficient_matrix.to_numpy()
 
-    return coefficient_matrix
+    return coefficient_matrix, font_term
 
 
 def get_object_case(fluxtype: str, well_condiction=None, external_condiction=None,
