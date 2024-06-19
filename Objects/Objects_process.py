@@ -1,3 +1,14 @@
+class WellPosition:
+    def __init__(self, positionwell, radius, permeability, pressure, flow, typewell):
+        self.line = positionwell[0]
+        self.column = positionwell[1]
+        self.radius = radius
+        self.permeability = permeability
+        self.pressure = pressure
+        self.flow = flow
+        self.type = typewell
+
+
 class ResultsOneDimFlow:
     def __init__(self, data_analitical, data_explicit, data_implicit, data_ana_exp, data_ana_imp, n_cell_explicit,
                  n_cell_implicit, dx_explicit, dx_implicit, t_process_explicit, t_process_implicit, mesh_explicit,
