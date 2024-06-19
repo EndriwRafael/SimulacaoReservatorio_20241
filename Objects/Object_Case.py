@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 import Functions
 import os
+from Objects import Objects_process as Obj
 
 
 class ObjectCase(ABC):
@@ -36,6 +37,15 @@ class ObjectCase(ABC):
         eta = self.permeability / (self.viscosity * self.compressibility * self.porosity)
         return eta, delta_pressure
 
+    @staticmethod
+    def set_well_position(position):
+        wells_p = {}
+        for key, item in position.items():
+            wells_p[key] = Obj.WellPosition(positionwell=item['Position'], radius=item['Radius'],
+                                            permeability=item['Permeability'], pressure=item['Pressure'],
+                                            flow=item['Flow'], typewell=item['Type'])
+        return wells_p
+
     def set_case_parameters(self, initial_press: int or float, well_press: int or float, res_len: int or float,
                             viscosity: float, porosity: float, compressibility: float,
                             res_area: int or float, res_thick: float or int, permeability=None, res_width=None,
@@ -61,8 +71,8 @@ class ObjectCase(ABC):
         self.rightpress = right_press
         self.toppress = top_press
         self.basepress = base_press
-        self.wellpositions = well_position
-        self.eta, self.deltaPressure = self.calc() if type(self.permeability) == float else None, None
+        self.wellpositions = well_position if well_position is None else self.set_well_position(well_position)
+        self.eta, self.deltaPressure = self.calc() if type(self.permeability) == float else (None, None)
 
     @abstractmethod
     def compute(self):
