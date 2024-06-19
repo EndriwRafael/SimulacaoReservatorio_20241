@@ -169,6 +169,11 @@ class TwoDimensionalImplicitMethod(Implicit):
         self.beta = None
         self.ry = None
         self.rx = None
+        self.pho = None
+        self.mi = None
+        self.ct = None
+        self.dx = None
+        self.dy = None
         self.parameters = None
         self.permeability_map = None
 
@@ -176,6 +181,11 @@ class TwoDimensionalImplicitMethod(Implicit):
         self.beta = 1/(self.well_class.compressibility * self.well_class.viscosity * self.well_class.porosity)
         self.rx = self.well_class.rx_implicit
         self.ry = self.well_class.ry_implicit
+        self.pho = self.well_class.porosity
+        self.mi = self.well_class.viscosity
+        self.ct = self.well_class.compressibility
+        self.dx = self.well_class.dx_implicit
+        self.dy = self.well_class.dy_implicit
 
         with open(self.well_class.permeability, 'r') as file:
             if file.readline()[:-1] != '# Permeability':
@@ -186,9 +196,10 @@ class TwoDimensionalImplicitMethod(Implicit):
                 self.permeability_map = Df(perm)
 
     def start_simulate(self):
-        coeficiente_matrix = Functions.create_pressurecoeficientes_flowboundaries2d(
-            n_cells=self.well_class.n_cells_implicit, map_permeability=self.permeability_map,
-            rx=self.ry, ry=self.rx, beta=self.beta
+        coeficiente_matrix, font_term = Functions.create_pressurecoeficientes_flowboundaries2d(
+            n_cells=self.well_class.n_cells_implicit, map_permeability=self.permeability_map, rx=self.ry, ry=self.rx,
+            beta=self.beta, wellposition=self.well_class.wellpositions, pho=self.pho, ct=self.ct, dx=self.dx,
+            dy=self.dy, mi=self.mi
         )
         pass
 
