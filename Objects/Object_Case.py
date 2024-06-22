@@ -46,9 +46,10 @@ class ObjectCase(ABC):
                                             flow=item['Flow'], typewell=item['Type'])
         return wells_p
 
-    def set_case_parameters(self, initial_press: int or float, well_press: int or float, res_len: int or float,
+    def set_case_parameters(self, initial_press: int or float, res_len: int or float,
                             viscosity: float, porosity: float, compressibility: float,
-                            res_area: int or float, res_thick: float or int, permeability=None, res_width=None,
+                            res_area: int or float, res_thick: float or int, well_press=None, permeability=None,
+                            res_width=None,
                             wellflow=None, injectflow=None, leftflow=None, rightflow=None, topflow=None, baseflow=None,
                             left_press=None, right_press=None, top_press=None, base_press=None, well_position=None):
         self.initial_pressure = initial_press
