@@ -21,10 +21,10 @@ qbase = 0
 qright = 0
 permeability_map = 'PermeabilityMaps/Permeability_Map_4x4.txt'
 wells_configuration = {
-    'well 1': {'Position': (2, 2), 'Radius': 0.15, 'Permeability': 9.83e-13, 'Pressure': 9000000., 'Flow': None,
-               'Type': 'Production'},
-    'well 2': {'Position': (3, 2), 'Radius': 0.20, 'Permeability': 9.83e-13, 'Pressure': 9000000., 'Flow': None,
-               'Type': 'Injection'}
+    'well 1': {'Position': (2, 2), 'Radius': 0.075, 'Permeability': 9.83e-13, 'Pressure': 9000000., 'Flow': None,
+               'Type': 'Production'}
+    # 'well 2': {'Position': (3, 2), 'Radius': 0.20, 'Permeability': 9.83e-13, 'Pressure': 9000000., 'Flow': None,
+    #            'Type': 'Injection'}
 }
 
 ''' Definindo condições de simulação ------------------------------------------------------------------------------- '''
