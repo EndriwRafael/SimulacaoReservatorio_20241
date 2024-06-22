@@ -176,6 +176,7 @@ class TwoDimensionalImplicitMethod(Implicit):
         self.dy = None
         self.parameters = None
         self.permeability_map = None
+        self.n_cells = None
 
     def set_matrixparameters(self):
         self.beta = 1/(self.well_class.compressibility * self.well_class.viscosity * self.well_class.porosity)
@@ -186,6 +187,7 @@ class TwoDimensionalImplicitMethod(Implicit):
         self.ct = self.well_class.compressibility
         self.dx = self.well_class.dx_implicit
         self.dy = self.well_class.dy_implicit
+        self.n_cells = self.well_class.n_cells_implicit
 
         with open(self.well_class.permeability, 'r') as file:
             if file.readline()[:-1] != '# Permeability':
@@ -201,5 +203,22 @@ class TwoDimensionalImplicitMethod(Implicit):
             beta=self.beta, wellposition=self.well_class.wellpositions, pho=self.pho, ct=self.ct, dx=self.dx,
             dy=self.dy, mi=self.mi
         )
-        pass
 
+        field_pressure_old = np.zeros(self.n_cells**2)
+        for t, mesh in self.well_class.implicit_mesh.items():
+            if t == 0.:
+                mesh.loc[:, :] = self.well_class.initial_pressure
+                field_pressure_old = [self.well_class.initial_pressure for _ in field_pressure_old]
+                time_old = t
+            else:
+                b = field_pressure_old + font_term
+                next_pressurefiled = solve(coeficiente_matrix, b)
+
+                index_ = np.linspace(1, self.n_cells, self.n_cells)
+                index_ = [int(i) for i in index_]
+                matrix_id = np.arange(1, self.n_cells**2 + 1).reshape(self.n_cells, self.n_cells)
+                matrix_id = Df(matrix_id, columns=index_, index=index_)
+
+                for idx in range(len(next_pressurefiled)):
+                    m, n = Functions.find_indexs(matrix_id, idx + 1)
+                    mesh.loc[m, n] = next_pressurefiled[idx]
