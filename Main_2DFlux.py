@@ -1,14 +1,12 @@
 """
 Main script to simulate Bilinear (2D) flow Monofase - Heterogeneous and homogeneous environments
 """
-import pandas as pd
-
 import Functions
 import numpy as np
 
 ''' Dados de Entrada ----------------------------------------------------------------------------------------------- '''
 pressure_initial = 19000000.
-length_reser_x = 30.
+length_reser_x = 50.
 length_reser_y = 50
 porosit = 0.2
 viscosi = .001
@@ -60,3 +58,6 @@ simulation.set_mesh_grid(time_explicit=None, time_implicit=time_implicit, n_cell
 
 ''' Iniciando simulação -------------------------------------------------------------------------------------------- '''
 simulation.simulate()
+
+''' Aferição dos resultados e comparação --------------------------------------------------------------------------- '''
+case.compute()
