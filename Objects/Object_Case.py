@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import numpy as np
 import Functions
 import os
 from Objects import Objects_process as Obj
@@ -64,7 +63,7 @@ class ObjectCase(ABC):
         self.res_width = res_width
         self.well_flow = wellflow
         self.injectflow = injectflow
-        self.leftflow= leftflow
+        self.leftflow = leftflow
         self.rightflow = rightflow
         self.topflow = topflow
         self.baseflow = baseflow
@@ -142,4 +141,4 @@ class TwoDimensionalFlowCase(ObjectCase):
             os.makedirs(f'.\\{self.rootpath}')
 
     def compute(self):
-        return
+        Functions.plot_animation_map_2d(grid=self.results.mesh, name=self.results.name, path=self.rootpath)
