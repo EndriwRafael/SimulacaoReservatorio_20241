@@ -209,7 +209,6 @@ class TwoDimensionalImplicitMethod(Implicit):
             if t == 0.:
                 mesh.loc[:, :] = self.well_class.initial_pressure
                 field_pressure_old = [self.well_class.initial_pressure for _ in field_pressure_old]
-                time_old = t
             else:
                 b = field_pressure_old + font_term
                 next_pressurefiled = solve(coeficiente_matrix, b)
@@ -222,3 +221,7 @@ class TwoDimensionalImplicitMethod(Implicit):
                 for idx in range(len(next_pressurefiled)):
                     m, n = Functions.find_indexs(matrix_id, idx + 1)
                     mesh.loc[m, n] = next_pressurefiled[idx]
+
+                mesh = Functions.flowboundaries2d(grid=mesh, n_cells=self.n_cells)
+
+                field_pressure_old = next_pressurefiled
