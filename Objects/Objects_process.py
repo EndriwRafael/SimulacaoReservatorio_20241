@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 class WellPosition:
     def __init__(self, positionwell, radius, permeability, pressure, flow, typewell):
         self.line = positionwell[0]
@@ -28,3 +31,18 @@ class ResultsOneDimFlow:
         self.mesh_implicit = mesh_implicit
         self.timeprocess_explicit = t_process_explicit
         self.timeprocess_implicit = t_process_implicit
+
+
+class ResultsTwoDimFlow:
+    def __init__(self, name: str, mesh: dict, cells: int, time: float, x_points: list, y_points: list):
+        self.name = name
+        self.mesh = mesh
+        self.n_cells = cells
+        self.time = time
+        self.set_index_mesh(x=x_points, y=y_points)
+
+    def set_index_mesh(self, x: list, y: list):
+        for _, grid in self.mesh.items():
+            grid = grid.set_index(pd.Index(y))
+            grid.columns = x
+            self.mesh[_] = grid
