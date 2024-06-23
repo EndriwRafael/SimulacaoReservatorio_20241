@@ -210,8 +210,8 @@ def create_mesh_1d(time_values: np.ndarray, n_cells: int, wellclass: object, met
         wellclass.time_explicit = time_values
         if wellclass.rx_explicit * wellclass.eta >= 0.25:
             print(f'Error!!! O critério de convergência não foi atingido. Parâmetro "(rx * eta) > 0.25".')
-            print(f'rx = {wellclass.r_x_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
-                  f'{wellclass.r_x_explicit * wellclass.eta}')
+            print(f'rx = {wellclass.rx_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
+                  f'{wellclass.rx_explicit * wellclass.eta}')
             sys.exit()
         else:
             pass
@@ -532,7 +532,7 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
         line = matrix_id.loc[m, n]
 
         r_eq = np.sqrt((dx * dy) / np.pi)
-        gama = (2 * eta * np.pi) / (dx * dy * np.log(r_eq/radius))
+        gama = (2 * eta * np.pi) / (dx * dy * np.log(r_eq / radius))
 
         if type_well == 'Production':
             coefficient_matrix.loc[line, line] += gama
@@ -672,3 +672,53 @@ def set_object_simulation(flowtype: str, method=None):
             sys.exit()
     else:
         pass
+
+
+def flowboundaries2d(grid: Df, n_cells: int):
+    # Boundaries but corners -------------------------------------------------------------------------------------------
+    grid.loc[1:n_cells, 0] = grid.loc[1:n_cells, 1]  # First column (x = 0) except for corners
+    grid.loc[1:n_cells, n_cells + 1] = grid.loc[1:n_cells, n_cells]  # Last column (x = length in x) except for corners
+    grid.loc[0, 1:n_cells] = grid.loc[1, 1:n_cells]  # First row (y = length in y) except for corners
+    grid.loc[n_cells + 1, 1:n_cells] = grid.loc[n_cells, 1:n_cells]  # Last row (y = 0) except for corners
+
+    # Corners ----------------------------------------------------------------------------------------------------------
+    # top-left corner (x = 0, y = length in y)
+    grid.loc[0, 0] = (grid.loc[0, 1] + grid.loc[1, 0]) / 2
+    # base-left corner (x = 0, y = 0)
+    grid.loc[n_cells + 1, 0] = (grid.loc[n_cells + 1, 1] + grid.loc[n_cells, 0]) / 2
+    # top-rigth corner (x = length in x, y = length in y)
+    grid.loc[0, n_cells + 1] = (grid.loc[0, n_cells] + grid.loc[1, n_cells + 1]) / 2
+    # base-rigth corner (x = length in x, y = 0)
+    grid.loc[n_cells + 1, n_cells + 1] = (grid.loc[n_cells, n_cells + 1] + grid.loc[n_cells + 1, n_cells]) / 2
+
+    return grid
+
+
+def plot_animation_map_2d(grid: dict, name: str, path: str):
+    times_key = list(grid.keys())
+    data_keys = list(grid.values())
+    frames = [i for i in range(len(times_key))]
+
+    # ------------------------------------------------------------------------------------------------------------------
+    def update(frame):
+
+        dataframe = grid[times_key[frame]]
+
+        plt.cla()  # Limpa o eixo atual para atualizar o gráfico
+
+        ax.imshow(dataframe, cmap='rainbow', interpolation='bicubic', origin='upper',
+                  norm=colors.Normalize(vmin=dataframe.min().min(), vmax=dataframe.max().max()),
+                  extent=(0, dataframe.index.max(), 0, dataframe.columns.max()))
+
+        plt.xlabel('Comprimento x (m)')
+        plt.ylabel('Comprimento y (m)')
+        plt.title("Mapa de Pressão")
+        plt.tight_layout()
+
+    # Configuração do gráfico
+    fig, ax = plt.subplots()
+    ani = FuncAnimation(fig, update, frames=frames, interval=1000)  # Intervalo de 1000ms entre frames
+
+    # Salvar a animação como GIF
+    ani.save(f'{path}\\animacao_map.gif', writer='pillow', fps=60)  # 1 frame por segundo
+    plt.close()
