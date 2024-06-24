@@ -350,8 +350,8 @@ def calc_permeability(xi, xj):
     :param xj:
     :return: The equivalent permeability between the two cells [float].
     """
-    k_eq = 2 / ((xi ** -1) + (xj ** -1))
-    k_eq *= 9.869233e-13
+    k_eq = 2 / ((1 / xi) + (1 / xj))
+    k_eq *= 9.869233e-16
     return k_eq
 
 
@@ -435,9 +435,9 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
             k_eq_low = calc_permeability(xi=map_permeability.loc[m, n],
                                          xj=map_permeability.loc[m + 1, n])
 
-            coefficient_matrix.loc[line, line] = 2 + (beta * ((ry * k_eq_low) + (rx * k_eq_left)))
-            coefficient_matrix.loc[line, line - 1] = - beta * rx * k_eq_left
-            coefficient_matrix.loc[line, line + n_cells] = - beta * ry * k_eq_low
+            coefficient_matrix.loc[line, line] = (2 + (beta * ((ry * k_eq_low) + (rx * k_eq_left)))) / 2
+            coefficient_matrix.loc[line, line - 1] = (- beta * rx * k_eq_left) / 2
+            coefficient_matrix.loc[line, line + n_cells] = (- beta * ry * k_eq_low) / 2
 
         elif line == (n_cells ** 2 - (n_cells - 1)):  # primeira célula da última linha
             m, n = find_indexs(matrix_id, line)
@@ -448,9 +448,9 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
             k_eq_righ = calc_permeability(xi=map_permeability.loc[m, n],
                                           xj=map_permeability.loc[m - 1, n])
 
-            coefficient_matrix.loc[line, line] = 2 + (beta * ((ry * k_eq_righ) + (rx * k_eq_rigth)))
-            coefficient_matrix.loc[line, line + 1] = - beta * rx * k_eq_rigth
-            coefficient_matrix.loc[line, line - n_cells] = - beta * ry * k_eq_righ
+            coefficient_matrix.loc[line, line] = (2 + (beta * ((ry * k_eq_righ) + (rx * k_eq_rigth)))) / 2
+            coefficient_matrix.loc[line, line + 1] = (- beta * rx * k_eq_rigth) / 2
+            coefficient_matrix.loc[line, line - n_cells] = (- beta * ry * k_eq_righ) / 2
 
         elif (n_cells ** 2 - (n_cells - 1)) < line < n_cells ** 2:  # células interiores da última linha
             m, n = find_indexs(matrix_id, line)
@@ -470,9 +470,9 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
             k_eq_righ = calc_permeability(xi=map_permeability.loc[m, n],
                                           xj=map_permeability.loc[m - 1, n])
 
-            coefficient_matrix.loc[line, line] = 2 + (beta * ((ry * k_eq_righ) + (rx * k_eq_left)))
-            coefficient_matrix.loc[line, line - 1] = - beta * rx * k_eq_left
-            coefficient_matrix.loc[line, line - n_cells] = - beta * ry * k_eq_righ
+            coefficient_matrix.loc[line, line] = (2 + (beta * ((ry * k_eq_righ) + (rx * k_eq_left)))) / 2
+            coefficient_matrix.loc[line, line - 1] = (- beta * rx * k_eq_left) / 2
+            coefficient_matrix.loc[line, line - n_cells] = (- beta * ry * k_eq_righ) / 2
 
         else:
             if cont == 1:  # primeira célula das linhas interiores
@@ -699,25 +699,41 @@ def plot_animation_map_2d(grid: dict, name: str, path: str):
     data_keys = list(grid.values())
     frames = [i for i in range(len(times_key))]
 
+    # Converta os dados do DataFrame para tipo numérico e trate valores nulos
+    for key in times_key:
+        grid[key] = grid[key].apply(pd.to_numeric, errors='coerce').fillna(0)
+
     # ------------------------------------------------------------------------------------------------------------------
     def update(frame):
+        if frame == 0:
+            pass
+        else:
+            dataframe = grid[times_key[frame]]
 
-        dataframe = grid[times_key[frame]]
+            plt.cla()  # Limpa o eixo atual para atualizar o gráfico
 
-        plt.cla()  # Limpa o eixo atual para atualizar o gráfico
+            plt.imshow(dataframe, cmap='rainbow', interpolation='bicubic', origin='upper',
+                       extent=(0, dataframe.index.max(), 0, dataframe.columns.max()),
+                       norm=colors.Normalize(vmin=dataframe.min().min(), vmax=dataframe.max().max())
+                       )
 
-        ax.imshow(dataframe, cmap='rainbow', interpolation='bicubic', origin='upper',
-                  norm=colors.Normalize(vmin=dataframe.min().min(), vmax=dataframe.max().max()),
-                  extent=(0, dataframe.index.max(), 0, dataframe.columns.max()))
-
-        plt.xlabel('Comprimento x (m)')
-        plt.ylabel('Comprimento y (m)')
-        plt.title("Mapa de Pressão")
-        plt.tight_layout()
+            plt.xlabel('Comprimento x (m)')
+            plt.ylabel('Comprimento y (m)')
+            plt.title("Mapa de Pressão")
+            plt.tight_layout()
 
     # Configuração do gráfico
     fig, ax = plt.subplots()
-    ani = FuncAnimation(fig, update, frames=frames, interval=1000)  # Intervalo de 1000ms entre frames
+    df_map = grid[times_key[0]]
+    map_to_plot = plt.imshow(df_map, cmap='rainbow', interpolation='bicubic', origin='lower',
+                             extent=(0, df_map.index.max(), 0, df_map.columns.max()),
+                             norm=colors.Normalize(vmin=df_map.min().min(), vmax=df_map.max().max()))
+    fig.colorbar(mappable=map_to_plot, ax=ax)
+    plt.xlabel('Comprimento x (m)')
+    plt.ylabel('Comprimento y (m)')
+    plt.title("Mapa de Pressão")
+    plt.tight_layout()
+    ani = FuncAnimation(fig, update, frames=len(times_key) - 1, interval=1000)  # Intervalo de 1000ms entre frames
 
     # Salvar a animação como GIF
     ani.save(f'{path}\\animacao_map.gif', writer='pillow', fps=60)  # 1 frame por segundo
