@@ -41,7 +41,7 @@ class ObjectCase(ABC):
         wells_p = {}
         for key, item in position.items():
             wells_p[key] = Obj.WellPosition(positionwell=item['Position'], radius=item['Radius'],
-                                            permeability=item['Permeability'], pressure=item['Pressure'],
+                                            pressure=item['Pressure'],
                                             flow=item['Flow'], typewell=item['Type'])
         return wells_p
 
@@ -141,4 +141,5 @@ class TwoDimensionalFlowCase(ObjectCase):
             os.makedirs(f'.\\{self.rootpath}')
 
     def compute(self):
+        Functions.plot_graphs_2d(welldata=self.results.welldata, time_values=self.results.time, path=self.rootpath)
         Functions.plot_animation_map_2d(grid=self.results.mesh, name=self.results.name, path=self.rootpath)
