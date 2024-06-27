@@ -2,11 +2,10 @@ import pandas as pd
 
 
 class WellPosition:
-    def __init__(self, positionwell, radius, permeability, pressure, flow, typewell):
+    def __init__(self, positionwell, radius, pressure, flow, typewell):
         self.line = positionwell[0]
         self.column = positionwell[1]
         self.radius = radius
-        self.permeability = permeability
         self.pressure = pressure
         self.flow = flow
         self.type = typewell
@@ -34,11 +33,14 @@ class ResultsOneDimFlow:
 
 
 class ResultsTwoDimFlow:
-    def __init__(self, name: str, mesh: dict, cells: int, time: float, x_points: list, y_points: list):
+    def __init__(self, name: str, mesh: dict, cells: int, time: float, x_points: list, y_points: list, welldata: dict,
+                 time_process: float):
         self.name = name
         self.mesh = mesh
         self.n_cells = cells
         self.time = time
+        self.welldata = welldata
+        self.time_process = time_process
         self.set_index_mesh(x=x_points, y=y_points)
 
     def set_index_mesh(self, x: list, y: list):
