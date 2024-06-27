@@ -179,7 +179,7 @@ class TwoDimensionalImplicitMethod(Implicit):
         self.n_cells = None
 
     def set_matrixparameters(self):
-        self.beta = 1/(self.well_class.compressibility * self.well_class.viscosity * self.well_class.porosity)
+        self.beta = 1 / (self.well_class.compressibility * self.well_class.viscosity * self.well_class.porosity)
         self.rx = self.well_class.rx_implicit
         self.ry = self.well_class.ry_implicit
         self.pho = self.well_class.porosity
@@ -204,10 +204,17 @@ class TwoDimensionalImplicitMethod(Implicit):
             dy=self.dy, mi=self.mi
         )
 
-        field_pressure_old = np.zeros(self.n_cells**2)
+        print('Iniciando resolução do sistema linear...')
+        tic = time.time()
+        field_pressure_old = np.zeros(self.n_cells ** 2)
         for t, mesh in self.well_class.implicit_mesh.items():
+            print(f'Solucionando para t = {t}')
             if t == 0.:
                 mesh.loc[:, :] = self.well_class.initial_pressure
+                for well, item in self.well_class.wellpositions.items():
+                    item.production = [0]
+                    item.flow = [0]
+
                 field_pressure_old = [self.well_class.initial_pressure for _ in field_pressure_old]
             else:
                 b = field_pressure_old + font_term
@@ -215,7 +222,7 @@ class TwoDimensionalImplicitMethod(Implicit):
 
                 index_ = np.linspace(1, self.n_cells, self.n_cells)
                 index_ = [int(i) for i in index_]
-                matrix_id = np.arange(1, self.n_cells**2 + 1).reshape(self.n_cells, self.n_cells)
+                matrix_id = np.arange(1, self.n_cells ** 2 + 1).reshape(self.n_cells, self.n_cells)
                 matrix_id = Df(matrix_id, columns=index_, index=index_)
 
                 for idx in range(len(next_pressurefiled)):
@@ -224,4 +231,19 @@ class TwoDimensionalImplicitMethod(Implicit):
 
                 mesh = Functions.flowboundaries2d(grid=mesh, n_cells=self.n_cells)
 
+                for well, item in self.well_class.wellpositions.items():
+                    if item.type == 'Production':
+                        m = item.line
+                        n = item.column
+                        pressure_well = item.pressure
+                        pressure_eq = mesh.loc[m, n]
+                        item.flow.append((pressure_eq - pressure_well) *
+                                         ((2 * np.pi * item.permeability *
+                                           self.well_class.res_thickness) / (self.well_class.viscosity *
+                                                                             np.log(
+                                                                                 item.equivalent_radius / item.radius)))
+                                         )
+                        item.production.append(item.production[-1] + (item.flow[-1] * self.well_class.deltat))
+
                 field_pressure_old = next_pressurefiled
+        tac = time.time()

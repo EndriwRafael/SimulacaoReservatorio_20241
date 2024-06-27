@@ -270,6 +270,7 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
         wellclass.rx_explicit = delta_t / (deltax ** 2)
         wellclass.ry_explicit = delta_t / (deltay ** 2)
         wellclass.time_explicit = time_values
+        wellclass.deltat = delta_t
         if wellclass.rx_explicit * wellclass.eta >= 0.25:
             print(f'Error: O critério de convergência não foi atingido para o eixo x. Parâmetro "(rx * eta) > 0.25".')
             print(f'rx = {wellclass.rx_explicit} // eta = {wellclass.eta}  // (rx * eta) = '
@@ -286,6 +287,7 @@ def create_mesh_2d(time_values: np.ndarray, n_cells: int, wellclass: object, met
         wellclass.rx_implicit = delta_t / (deltax ** 2)
         wellclass.ry_implicit = delta_t / (deltay ** 2)
         wellclass.time_implicit = time_values
+        wellclass.deltat = delta_t
 
     return grid, deltax, deltay
 
@@ -350,7 +352,16 @@ def calc_permeability(xi, xj):
     :param xj:
     :return: The equivalent permeability between the two cells [float].
     """
-    k_eq = 2 / ((1 / xi) + (1 / xj))
+
+    if xi == 0 and xj != 0:
+        k_eq = 2 / (0 + (1 / xj))
+    elif xi != 0 and xj == 0:
+        k_eq = 2 / ((1 / xi) + 0)
+    elif xi == 0 and xj == 0:
+        k_eq = 0
+    else:
+        k_eq = 2 / ((1 / xi) + (1 / xj))
+
     k_eq *= 9.869233e-16
     return k_eq
 
@@ -524,14 +535,15 @@ def create_pressurecoeficientes_flowboundaries2d(n_cells: int, map_permeability,
         m = item.line
         n = item.column
         radius = item.radius
-        permeability = item.permeability
+        item.permeability = map_permeability.loc[m, n] * 9.869233e-16
         pressure = item.pressure
         flow = item.flow
         type_well = item.type
-        eta = permeability / (pho * mi * ct)
+        eta = item.permeability / (pho * mi * ct)
         line = matrix_id.loc[m, n]
 
         r_eq = np.sqrt((dx * dy) / np.pi)
+        item.equivalent_radius = r_eq
         gama = (2 * eta * np.pi) / (dx * dy * np.log(r_eq / radius))
 
         if type_well == 'Production':
@@ -714,7 +726,7 @@ def plot_animation_map_2d(grid: dict, name: str, path: str):
 
             plt.imshow(dataframe, cmap='rainbow', interpolation='bicubic', origin='upper',
                        extent=(0, dataframe.index.max(), 0, dataframe.columns.max()),
-                       norm=colors.Normalize(vmin=dataframe.min().min(), vmax=dataframe.max().max())
+                       norm=colors.Normalize(vmin=a, vmax=b)
                        )
 
             plt.xlabel('Comprimento x (m)')
@@ -725,16 +737,47 @@ def plot_animation_map_2d(grid: dict, name: str, path: str):
     # Configuração do gráfico
     fig, ax = plt.subplots()
     df_map = grid[times_key[0]]
+    a = grid[times_key[-1]].min().min()
+    b = grid[times_key[0]].max().max()
     map_to_plot = plt.imshow(df_map, cmap='rainbow', interpolation='bicubic', origin='lower',
                              extent=(0, df_map.index.max(), 0, df_map.columns.max()),
-                             norm=colors.Normalize(vmin=df_map.min().min(), vmax=df_map.max().max()))
+                             norm=colors.Normalize(vmin=a, vmax=b))
     fig.colorbar(mappable=map_to_plot, ax=ax)
     plt.xlabel('Comprimento x (m)')
     plt.ylabel('Comprimento y (m)')
     plt.title("Mapa de Pressão")
     plt.tight_layout()
-    ani = FuncAnimation(fig, update, frames=len(times_key) - 1, interval=1000)  # Intervalo de 1000ms entre frames
+    ani = FuncAnimation(fig, update, frames=len(times_key) - 1, interval=500)  # Intervalo de 1000ms entre frames
 
     # Salvar a animação como GIF
     ani.save(f'{path}\\animacao_map.gif', writer='pillow', fps=60)  # 1 frame por segundo
     plt.close()
+
+
+def plot_graphs_2d(welldata: dict, time_values: list, path: str):
+    for well, data in welldata.items():
+        if data.type == 'Production':
+            # gridspec inside gridspec
+            fig = plt.figure(layout='constrained', figsize=(10, 6))
+            subfigs = fig.subfigures(1, 2, wspace=0.07)
+
+            # axis
+            leftaxis = subfigs[0].subplots(1, 1)  # For production curve
+            rigthaxis = subfigs[1].subplots(1, 1)   # For wellflow curve
+
+            # plots
+            leftaxis.plot(time_values, data.production)
+            leftaxis.set_ylabel('Production (m³)')
+            leftaxis.set_xlabel('Time (s)')
+
+            rigthaxis.plot(time_values[1:], data.flow[1:])
+            rigthaxis.set_ylabel('Flow (m³/s)')
+            rigthaxis.set_xlabel('Time (s)')
+
+            # Titles
+            subfigs[0].suptitle('Production', fontsize='x-large')
+            subfigs[1].suptitle('Flow', fontsize='x-large')
+            fig.suptitle('Accumulated Production Curves', fontsize='xx-large')
+
+            fig.savefig(f'{path}\\CurveAnalysis _ Well {well}.png')
+            plt.close('all')
