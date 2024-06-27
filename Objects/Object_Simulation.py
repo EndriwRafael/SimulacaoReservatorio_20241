@@ -163,9 +163,12 @@ class TwoDimensionalFlowMesh(Simulator):
             implicit.start_simulate()
             self.wellclass.results = Objects_process.ResultsTwoDimFlow(name='Implicit',
                                                                        mesh=self.wellclass.implicit_mesh,
-                                                                       time=15., cells=self.wellclass.n_cells_implicit,
+                                                                       time=self.wellclass.time_implicit,
+                                                                       cells=self.wellclass.n_cells_implicit,
                                                                        x_points=self.wellclass.x_values,
-                                                                       y_points=self.wellclass.y_values)
+                                                                       y_points=self.wellclass.y_values,
+                                                                       welldata=self.wellclass.wellpositions,
+                                                                       time_process=15.)
 
 
 class ThreeDimensionalFlowMesh:
