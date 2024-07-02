@@ -783,3 +783,35 @@ def plot_graphs_2d(welldata: dict, time_values: list, path: str):
 
             fig.savefig(f'{path}\\CurveAnalysis _ {well}.png')
             plt.close('all')
+
+    if len(welldata.keys()) > 1:
+        prod_sum = np.zeros((len(welldata['well 1'].production)))
+        flow_sum = np.zeros((len(welldata['well 1'].flow)))
+        for values in welldata.values():
+            for i in range(len(prod_sum)):
+                prod_sum[i] += values.production[i]
+                flow_sum[i] += values.flow[i]
+
+        fig = plt.figure(layout='constrained', figsize=(10, 6))
+        subfigs = fig.subfigures(1, 2, wspace=0.07)
+
+        # axis
+        leftaxis = subfigs[0].subplots(1, 1)  # For production curve
+        rigthaxis = subfigs[1].subplots(1, 1)  # For wellflow curve
+
+        # plots
+        leftaxis.plot(time_values, prod_sum)
+        leftaxis.set_ylabel('Production (m³)')
+        leftaxis.set_xlabel('Time (s)')
+
+        rigthaxis.plot(time_values[1:], flow_sum[1:])
+        rigthaxis.set_ylabel('Flow (m³/s)')
+        rigthaxis.set_xlabel('Time (s)')
+
+        # Titles
+        subfigs[0].suptitle('Production', fontsize='x-large')
+        subfigs[1].suptitle('Flow', fontsize='x-large')
+        fig.suptitle('Accumulated Production Curves - Wells', fontsize='xx-large')
+
+        fig.savefig(f'{path}\\CurveAnalysis _ AllWells.png')
+        plt.close('all')
