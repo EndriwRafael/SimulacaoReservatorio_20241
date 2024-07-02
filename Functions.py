@@ -353,11 +353,13 @@ def calc_permeability(xi, xj):
     :return: The equivalent permeability between the two cells [float].
     """
 
-    if xi == 0 and xj != 0:
-        k_eq = 2 / (0 + (1 / xj))
-    elif xi != 0 and xj == 0:
-        k_eq = 2 / ((1 / xi) + 0)
-    elif xi == 0 and xj == 0:
+    # if xi == 0 and xj != 0:
+    #     k_eq = 2 / (0 + (1 / xj))
+    # elif xi != 0 and xj == 0:
+    #     k_eq = 2 / ((1 / xi) + 0)
+    # elif xi == 0 and xj == 0:
+    #     k_eq = 0
+    if xi == 0 or xj == 0:
         k_eq = 0
     else:
         k_eq = 2 / ((1 / xi) + (1 / xj))
@@ -779,5 +781,5 @@ def plot_graphs_2d(welldata: dict, time_values: list, path: str):
             subfigs[1].suptitle('Flow', fontsize='x-large')
             fig.suptitle('Accumulated Production Curves', fontsize='xx-large')
 
-            fig.savefig(f'{path}\\CurveAnalysis _ Well {well}.png')
+            fig.savefig(f'{path}\\CurveAnalysis _ {well}.png')
             plt.close('all')

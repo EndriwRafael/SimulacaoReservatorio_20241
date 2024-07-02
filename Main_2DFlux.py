@@ -17,9 +17,11 @@ qleft = 0
 qtop = 0
 qbase = 0
 qright = 0
-permeability_map = 'PermeabilityMaps/Permeability_Map_100x100_Hetero_Last_Last.txt'
+permeability_map = 'PermeabilityMaps/Permeability_Map_100x100_Hetero_FinalAnalysis.txt'
 wells_configuration = {
     'well 1': {'Position': (80, 25), 'Radius': 0.1, 'Pressure': 9000000., 'Flow': None,
+               'Type': 'Production'},
+    'well 2': {'Position': (20, 75), 'Radius': 0.1, 'Pressure': 9000000., 'Flow': None,
                'Type': 'Production'}
     # 'well 2': {'Position': (3, 2), 'Radius': 0.20, 'Permeability': 9.83e-13, 'Pressure': 9000000., 'Flow': None,
     #            'Type': 'Injection'}
@@ -38,7 +40,7 @@ base_boundary = 'F'
 flux = '2D'
 
 # Dados para criação de malha - O número de células deve ser igual, para x e y.
-time_implicit = np.linspace(start=0, stop=10000, num=101)
+time_implicit = np.linspace(start=0, stop=10000, num=401)
 n_cells_implicit = 100
 
 ''' Inicializando simulador ---------------------------------------------------------------------------------------- '''
